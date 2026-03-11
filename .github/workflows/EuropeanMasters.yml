@@ -11,6 +11,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # ESTO ES LO QUE FALTA:
+    environment: works
     steps:
       - name: Checkout del código
         uses: actions/checkout@v4
