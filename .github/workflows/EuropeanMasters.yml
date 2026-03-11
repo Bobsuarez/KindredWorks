@@ -3,7 +3,7 @@ name: Deploy Componentes Específicos
 on:
   push:
     branches:
-      - main
+      - master
     # AQUÍ ESTÁ EL TRUCO: Solo se activa si cambias archivos en estas carpetas
     paths:
       - 'european-masters/**'
