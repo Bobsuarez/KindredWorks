@@ -24,11 +24,3 @@ jobs:
           script: |
             cd /home/bob/projects/KindredWorks/european-masters
             git pull origin master
-            
-            # Usando la filosofía de Podman Pods que hablamos:
-            # Reconstruimos solo los componentes necesarios
-            # podman build -t img-ventas ./app-ventas
-            # podman build -t img-stock ./app-stock
-            
-            # Si usas un archivo kube YAML para el Pod:
-            # podman play kube despliegue-dual.yaml --replace
