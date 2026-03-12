@@ -24,5 +24,7 @@ jobs:
           username: ${{ vars.SSH_USER }}  # Si está en la pestaña "Variables"
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd /home/bob/projects/KindredWorks/european-masters
+            cd /home/bob/projects/KindredWorks/
             git pull origin master
+            cd european-masters
+            podman-compose up -d
