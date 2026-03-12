@@ -1,0 +1,29 @@
+name: european-masters
+
+services:
+  em-db:
+    image: postgres:15-alpine
+    container_name: em-db
+    networks:
+      - kinForge-net # Red compartida con el Nginx Global
+
+  em-backend:
+    image: ghcr.io/tu-repo/em-backend:latest
+    container_name: em-backend
+    depends_on:
+      - em-db
+    networks:
+      - kinForge-net
+
+  em-landing:
+    image: nginx:stable-alpine
+    container_name: em-landing
+    depends_on:
+      - em-db
+      - em-backend
+    networks:
+      - kinForge-net
+
+networks:
+  kinForge-net:
+    external: true # Importante: se conecta a la red que ya creó el Nginx Global
