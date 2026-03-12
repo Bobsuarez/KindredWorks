@@ -2,18 +2,33 @@ name: n8n-stack
 
 services:
   n8n:
-    image: n8nio/n8n:latest
+    image: docker.io/n8nio/n8n:latest
     container_name: n8n
+    restart: unless-stopped
     environment:
+      # URL pública
+      - N8N_HOST=n8n.kinforgeworks.com
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - WEBHOOK_URL=https://n8n.kinforgeworks.com
+
+      # Autenticación
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=tuUsuario
       - N8N_BASIC_AUTH_PASSWORD=tuPassword
-      - N8N_HOST=n8n.kinforgeworks.com
-      - N8N_PORT=5678
-    ports:
-       - "5678:5678"
+
+      # Zona horaria
+      - GENERIC_TIMEZONE=America/Bogota
+      - TZ=America/Bogota
+
+    volumes:
+      - n8n_data:/home/node/.n8n   # persistencia de workflows
+
     networks:
       - kinForge-net
+
+volumes:
+  n8n_data:
 
 networks:
   kinForge-net:
