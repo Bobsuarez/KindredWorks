@@ -1,0 +1,19 @@
+name: nginx-global
+
+services:
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro,Z
+      - ./certbot-www:/var/www/certbot:Z
+      - ./certs:/etc/letsencrypt:ro,Z
+    networks:
+      - kinForge-net
+
+networks:
+  kinForge-net:
+    external: true
