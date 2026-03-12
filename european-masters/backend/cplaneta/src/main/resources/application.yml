@@ -1,0 +1,81 @@
+spring:
+  application:
+    name: cplaneta
+
+  datasource:
+    # Para Docker: por defecto apunta al servicio em-db definido en docker-compose
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        default_schema: public
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:candresbh1@gmail.com}
+    password: ${MAIL_PASSWORD:lvky axfd vfbz kqvn}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+  task:
+    scheduling:
+      pool:
+        size: 1
+
+server:
+  port: 8080
+
+# Application-specific configuration
+app:
+  scheduling:
+    # Cron: every 2.4 minutes = every 144 seconds
+    # Spring cron does not support sub-minute intervals natively,
+    # so we use fixedDelay in the scheduler and validate time window in code.
+    fixed-delay-ms: 144000
+    window-start-hour: 7
+    window-end-hour: 19
+    daily-limit: 300
+
+  file-storage:
+    # NOTE: Don't point this to src/main/resources in production; packaged apps
+    # run from a JAR/WAR where classpath resources are not writable.
+    # For local dev you can set FILE_STORAGE_BASE_PATH=./src/main/resources/uploads
+    base-path: ${FILE_STORAGE_BASE_PATH:./uploads}
+
+  whatsapp:
+    api-url: ${WHATSAPP_API_URL:https://api.whatsapp-provider.com}
+    api-key: ${WHATSAPP_API_KEY:}
+    from-number: ${WHATSAPP_FROM_NUMBER:}
+
+  email:
+    from-address: ${EMAIL_FROM:candresbh1@gmail.com}
+    from-name: "Universidad - Programas de Posgrado"
+
+logging:
+  level:
+    com/kinforgework/cplaneta: DEBUG
+    org.springframework.scheduling: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
