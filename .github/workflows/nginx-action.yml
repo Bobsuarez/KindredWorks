@@ -1,0 +1,33 @@
+name: ngnix_actions
+
+on:
+  push:
+    branches:
+      - master
+    # AQUÍ ESTÁ EL TRUCO: Solo se activa si cambias archivos en estas carpetas
+    paths:
+      - 'ngnix-proxy/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # ESTO ES LO QUE FALTA:
+    environment: works
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Desplegar en Contabo vía SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ vars.SSH_USER }}  # Si está en la pestaña "Variables"
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /home/bob/projects/KindredWorks/
+            git pull origin master
+
+            cd ngnix-proxy
+            
+            podman network create kinForge-net
+            podman-compose up -d
