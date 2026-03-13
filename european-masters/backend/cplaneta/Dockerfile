@@ -1,7 +1,7 @@
 ### Multi-stage Dockerfile para el microservicio cplaneta (Spring Boot / Maven)
 
 # Etapa 1: build con Maven
-FROM maven:3.9.9-eclipse-temurin-21 AS builder
+FROM docker.io/library/maven:3.9.9-eclipse-temurin-21 AS builder
 
 WORKDIR /app
 
@@ -18,7 +18,7 @@ COPY src ./src
 RUN mvn -B -q clean package -DskipTests
 
 # Etapa 2: runtime con JDK ligero
-FROM eclipse-temurin:21-jdk-jammy
+FROM docker.io/library/eclipse-temurin:21-jdk-jammy
 
 WORKDIR /app
 
