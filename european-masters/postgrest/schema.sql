@@ -36,8 +36,12 @@ CREATE INDEX IF NOT EXISTS idx_master_programs_area_id ON master_programs(area_i
 -- ------------------------------------------------------------
 -- Table: contacts
 -- ------------------------------------------------------------
+-- Limpieza: quitar tablas que usan contact_status y el tipo enum (status debe ser VARCHAR por JPA)
+DROP TABLE IF EXISTS message_logs;
+DROP TABLE IF EXISTS contacts;
+DROP TYPE IF EXISTS contact_status;
 
-CREATE TABLE IF NOT EXISTS contacts (
+CREATE TABLE contacts (
     id                BIGSERIAL       PRIMARY KEY,
     name              VARCHAR(200)    NOT NULL,
     email             VARCHAR(320)    NOT NULL,
