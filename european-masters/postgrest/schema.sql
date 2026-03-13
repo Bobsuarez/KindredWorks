@@ -36,7 +36,6 @@ CREATE INDEX IF NOT EXISTS idx_master_programs_area_id ON master_programs(area_i
 -- ------------------------------------------------------------
 -- Table: contacts
 -- ------------------------------------------------------------
-CREATE TYPE contact_status AS ENUM ('PENDING', 'SENT', 'ERROR');
 
 CREATE TABLE IF NOT EXISTS contacts (
     id                BIGSERIAL       PRIMARY KEY,
@@ -44,7 +43,7 @@ CREATE TABLE IF NOT EXISTS contacts (
     email             VARCHAR(320)    NOT NULL,
     phone_number      VARCHAR(30)     NOT NULL,
     master_program_id BIGINT          NOT NULL,
-    status            contact_status  NOT NULL DEFAULT 'PENDING',
+    status            VARCHAR(30)     NOT NULL DEFAULT 'PENDING',
     created_at        TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
     updated_at        TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
 
@@ -61,14 +60,13 @@ CREATE INDEX IF NOT EXISTS idx_contacts_status_id ON contacts(status, id);
 -- ------------------------------------------------------------
 -- Table: message_logs
 -- ------------------------------------------------------------
-CREATE TYPE delivery_status AS ENUM ('SUCCESS', 'FAILED');
 
 CREATE TABLE IF NOT EXISTS message_logs (
     id                 BIGSERIAL        PRIMARY KEY,
     contact_id         BIGINT           NOT NULL,
     master_program_id  BIGINT           NOT NULL,
-    email_status       delivery_status  NOT NULL,
-    whatsapp_status    delivery_status  NOT NULL,
+    email_status       VARCHAR(30)      NOT NULL,
+    whatsapp_status    VARCHAR(30)      NOT NULL,
     email_sent_at      TIMESTAMPTZ,
     whatsapp_sent_at   TIMESTAMPTZ,
     error_message      TEXT,
