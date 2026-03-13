@@ -2,7 +2,7 @@ name: european-masters
 
 services:
   em-db:
-    image: postgres:15-alpine
+    image: docker.io/library/dockepostgres:15-alpine
     container_name: em-db
     environment:
       - POSTGRES_DB=${DB_NAME:-masters_mailer}
@@ -48,14 +48,14 @@ services:
     networks:
       - kinForge-net
 
-  em-landing:
-    image: nginx:stable-alpine
-    container_name: em-landing
-    depends_on:
-      - em-db
-      - em-backend
-    networks:
-      - kinForge-net
+#  em-landing:
+#    image: nginx:stable-alpine
+#    container_name: em-landing
+#    depends_on:
+#      - em-db
+#      - em-backend
+#    networks:
+#      - kinForge-net
 
 networks:
   kinForge-net:
