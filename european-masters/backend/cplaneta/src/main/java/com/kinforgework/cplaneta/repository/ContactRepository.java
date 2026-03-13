@@ -24,7 +24,7 @@ public interface ContactRepository extends JpaRepository<ContactEntity, Long> {
             FROM contacts c
             JOIN master_programs mp ON c.master_program_id = mp.id
             JOIN areas a ON mp.area_id = a.id
-            WHERE c.status = :status
+            WHERE c.status::text = :status
             ORDER BY c.id ASC
             LIMIT 1
             """, nativeQuery = true)
