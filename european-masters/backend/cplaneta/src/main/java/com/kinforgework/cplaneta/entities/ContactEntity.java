@@ -60,7 +60,8 @@ public class ContactEntity {
     private MasterProgramEntity masterProgram;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "status", nullable = false, columnDefinition = "contact_status")
     @Builder.Default
     private ContactStatus status = ContactStatus.PENDING;
 
