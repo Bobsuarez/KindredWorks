@@ -41,13 +41,16 @@ DROP TABLE IF EXISTS message_logs;
 DROP TABLE IF EXISTS contacts;
 DROP TYPE IF EXISTS contact_status;
 
+
+CREATE TYPE contact_status AS ENUM ('PENDING', 'SENT', 'ERROR');
+
 CREATE TABLE contacts (
     id                BIGSERIAL       PRIMARY KEY,
     name              VARCHAR(200)    NOT NULL,
     email             VARCHAR(320)    NOT NULL,
     phone_number      VARCHAR(30)     NOT NULL,
     master_program_id BIGINT          NOT NULL,
-    status            VARCHAR(30)     NOT NULL DEFAULT 'PENDING',
+    status            contact_status  NOT NULL DEFAULT 'PENDING'::contact_status,
     created_at        TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
     updated_at        TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
 
