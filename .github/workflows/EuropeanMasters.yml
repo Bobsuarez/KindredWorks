@@ -27,4 +27,15 @@ jobs:
             cd /home/bob/projects/KindredWorks/
             git pull origin master
             cd european-masters
-            podman-compose up -d
+
+            # Pasamos los secrets de GitHub como variables de entorno al comando
+            export SMTP_USER=${{ secrets.AWS_SMTP_USER }}
+            export SMTP_PASS=${{ secrets.AWS_SMTP_PASS }}
+            
+            # Forzamos la reconstrucción si cambiaste el código Java
+            # y levantamos en segundo plano (-d)
+            podman-compose down
+            podman-compose up --build -d
+            
+            # Limpieza de imágenes huérfanas para ahorrar espacio en Contabo
+            podman image prune -f
