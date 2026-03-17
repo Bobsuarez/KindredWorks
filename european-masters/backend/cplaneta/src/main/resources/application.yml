@@ -24,10 +24,10 @@ spring:
         default_schema: public
 
   mail:
-    host: ${MAIL_HOST:smtp.gmail.com}
-    port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:candresbh1@gmail.com}
-    password: ${MAIL_PASSWORD:lvky axfd vfbz kqvn}
+    host: email-smtp.us-east-1.amazonaws.com
+    port: 587
+    username: ${SMTP_USERNAME}
+    password: ${SMTP_PASSWORD}
     properties:
       mail:
         smtp:
@@ -35,9 +35,9 @@ spring:
           starttls:
             enable: true
             required: true
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
+        connectiontimeout: 5000
+        timeout: 5000
+        writetimeout: 5000
 
   task:
     scheduling:
@@ -70,7 +70,7 @@ app:
     from-number: ${WHATSAPP_FROM_NUMBER:}
 
   email:
-    from-address: ${EMAIL_FROM:candresbh1@gmail.com}
+    from-address: ${EMAIL_FROM:andres.asesorias@kinforgeworks.com}
     from-name: "Universidad - Programas de Posgrado"
 
 logging:
