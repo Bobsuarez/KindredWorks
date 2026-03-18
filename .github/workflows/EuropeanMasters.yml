@@ -17,6 +17,9 @@ jobs:
       - name: Checkout del código
         uses: actions/checkout@v4
 
+      - name: Debug
+        run: echo "MAIL_HOST=${{ vars.MAIL_HOST }}"
+
       - name: Desplegar en Contabo vía SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
