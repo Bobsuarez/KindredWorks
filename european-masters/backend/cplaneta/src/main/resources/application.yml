@@ -24,7 +24,7 @@ spring:
         default_schema: public
 
   mail:
-    host: email-smtp.us-east-1.amazonaws.com
+    host: smtp.hostinger.com
     port: 587
     username: ${SMTP_USERNAME}
     password: ${SMTP_PASSWORD}
