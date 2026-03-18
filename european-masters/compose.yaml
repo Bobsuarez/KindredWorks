@@ -39,7 +39,7 @@ services:
       - MAIL_USERNAME=${MAIL_USER_SECRET_GIT}
       - MAIL_PASSWORD=${MAIL_PASS_SECRET_GIT}
 
-      # Dirección de remitente verificada en SES
+      # Dirección de remitente verificada en SES 
       - EMAIL_FROM=${EMAIL_FROM_VARIABLE_GIT:-andres.asesorias@kinforgeworks.com}
     ports:
       - "8080:8080"
