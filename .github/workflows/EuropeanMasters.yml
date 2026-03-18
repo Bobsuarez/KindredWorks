@@ -11,7 +11,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # ESTO ES LO QUE FALTA:
+
     environment: works
     steps:
       - name: Checkout del código
@@ -21,7 +21,7 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
-          username: ${{ vars.SSH_USER }}  # Si está en la pestaña "Variables"
+          username: ${{ vars.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd /home/bob/projects/KindredWorks/
@@ -29,8 +29,10 @@ jobs:
             cd european-masters
 
             # Pasamos los secrets de GitHub como variables de entorno al comando
-            export SMTP_USER=${{ secrets.AWS_SMTP_USER }}
-            export SMTP_PASS=${{ secrets.AWS_SMTP_PASS }}
+            export MAIL_HOST_VARIABLE_GIT =${{ vars.MAIL_HOST }}
+            export MAIL_PORT_VARIABLE_GIT=${{ vars.MAIL_PORT }}
+            export MAIL_USER_SECRET_GIT=${{ secrets.MAIL_USER }}
+            export MAIL_PASS_SECRET_GIT=${{ secrets.MAIL_PASS }}
             
             # Forzamos la reconstrucción si cambiaste el código Java
             # y levantamos en segundo plano (-d)

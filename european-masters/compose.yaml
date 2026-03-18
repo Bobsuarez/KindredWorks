@@ -27,20 +27,20 @@ services:
       # Datos de conexión a Postgres (dentro del cluster Docker)
       # IMPORTANTE: dentro de la red interna se usa el puerto del contenedor (5432), no el publicado (5435)
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL:-jdbc:postgresql://em-db:5432/masters_mailer}
-      - DB_USERNAME=${DB_USERNAME:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD:-bob123}
+      - DB_USERNAME=${DB_USERNAME_VARIABLE_GIT:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD_SECRET_GIT:-bob123}
 
           # Zona horaria JVM → Colombia
       - JAVA_OPTS=-Duser.timezone=America/Bogota
 
       # Config SMTP para AWS SES (Spring Mail)
-      - MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
-      - MAIL_PORT=${MAIL_PORT:-587}
-      - MAIL_USERNAME=${MAIL_USERNAME:-candresbh1@gmail.com}
-      - MAIL_PASSWORD=${MAIL_PASSWORD:-lvky axfd vfbz kqvn}
+      - MAIL_HOST=${MAIL_HOST_VARIABLE_GIT}
+      - MAIL_PORT=${MAIL_PORT_VARIABLE_GIT}
+      - MAIL_USERNAME=${MAIL_USER_SECRET_GIT}
+      - MAIL_PASSWORD=${MAIL_PASS_SECRET_GIT}
 
       # Dirección de remitente verificada en SES
-      - EMAIL_FROM=${EMAIL_FROM:-candresbh1@gmail.com}
+      - EMAIL_FROM=${EMAIL_FROM_VARIABLE_GIT:-andres.asesorias@kinforgeworks.com}
     ports:
       - "8080:8080"
     depends_on:

@@ -24,10 +24,10 @@ spring:
         default_schema: public
 
   mail:
-    host: smtp.hostinger.com
-    port: 587
-    username: ${SMTP_USERNAME}
-    password: ${SMTP_PASSWORD}
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
@@ -70,7 +70,7 @@ app:
     from-number: ${WHATSAPP_FROM_NUMBER:}
 
   email:
-    from-address: ${EMAIL_FROM:andres.asesorias@kinforgeworks.com}
+    from-address: ${EMAIL_FROM}
     from-name: "Universidad - Programas de Posgrado"
 
 logging:
