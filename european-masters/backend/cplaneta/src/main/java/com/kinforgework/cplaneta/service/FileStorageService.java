@@ -1,5 +1,6 @@
 package com.kinforgework.cplaneta.service;
 
+import com.kinforgework.cplaneta.exception.ResourceNotFoundException;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +14,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.util.Comparator;
 
 /**
  * Manages file storage for program assets (PDF curricula, subject images).
@@ -75,8 +77,43 @@ public class FileStorageService {
     }
 
     // -------------------------------------------------------------------------
-    // Read operations (used during message dispatch)
+    // Read operations
     // -------------------------------------------------------------------------
+
+    /**
+     * Reads the file at the given path into a byte array.
+     */
+    public byte[] readFileBytes(String storedPath) throws IOException {
+        Path path = Paths.get(storedPath);
+        if (!Files.exists(path)) {
+            throw new ResourceNotFoundException("File not found at: " + storedPath);
+        }
+        return Files.readAllBytes(path);
+    }
+    // -------------------------------------------------------------------------
+    // Delete operations
+    // -------------------------------------------------------------------------
+
+    /**
+     * Deletes the file if it exists.
+     */
+    public void deleteRecursively(String storedPath) throws IOException {
+        Path path = Paths.get(storedPath);
+
+        if (!Files.exists(path)) {
+            return;
+        }
+
+        Files.walk(path)
+                .sorted(Comparator.reverseOrder())
+                .forEach(p -> {
+                    try {
+                        Files.delete(p);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+    }
 
     /**
      * Resolves a stored path string to an existing {@link File}.
@@ -84,8 +121,7 @@ public class FileStorageService {
      * @throws IllegalStateException if the file does not exist
      */
     public File resolveFile(String storedPath) {
-        File file = Paths.get(storedPath)
-                .toFile();
+        File file = Paths.get(storedPath).toFile();
         if (!file.exists() || !file.isFile()) {
             throw new IllegalStateException(
                     "Required file not found at path: " + storedPath);

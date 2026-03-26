@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --color-primary:        #E8521A;
+  --color-primary-soft:   #FDE8DF;
+  --color-primary-hover:  #C94315;
+  --color-surface:        rgba(255, 255, 255, 0.55);
+  --color-bg:             #F5F5F7;
+  --color-bg-gradient:    linear-gradient(135deg, #F5F5F7 0%, #E8E8ED 100%);
+  --color-text:           #1C1C1E;
+  --color-text-muted:     #6E6E73;
+  --color-border:         rgba(255, 255, 255, 0.75);
+  --color-shadow:         rgba(0, 0, 0, 0.06);
+  --color-divider:        rgba(0, 0, 0, 0.06);
+  --color-hover-surface:  rgba(0, 0, 0, 0.04);
+  --color-active-surface: rgba(232, 82, 26, 0.10);
+  --radius-card:          18px;
+  --radius-input:         10px;
+  --radius-button:        10px;
+  --radius-pill:          999px;
+  --transition-base:      all 0.2s ease;
+  --sidebar-width:        260px;
+  --app-padding:          32px;
+  --font-family:          'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  font-family: var(--font-family);
+  font-size: 14px;
+  color: var(--color-text);
+  background: var(--color-bg-gradient);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.glass-surface {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  border-radius: var(--radius-card);
+}
+
+@supports not (backdrop-filter: blur(20px)) {
+  .glass-surface {
+    background: rgba(255, 255, 255, 0.85);
+  }
+}
+
+/* App shell layout tokens (keeps layout scalable & themeable) */
+.app-shell {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.app-shell__content {
+  margin-left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
+  padding: var(--app-padding);
+  min-height: 100vh;
+}

@@ -41,3 +41,8 @@ out/
 .vscode/
 .DS_Store
 application-*.properties
+
+.astro
+.cursor
+**/node_modules/
+**/dist/

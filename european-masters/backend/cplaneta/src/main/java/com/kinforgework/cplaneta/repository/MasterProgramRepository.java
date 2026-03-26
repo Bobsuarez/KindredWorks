@@ -1,6 +1,8 @@
 package com.kinforgework.cplaneta.repository;
 
 import com.kinforgework.cplaneta.entities.MasterProgramEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,4 +21,6 @@ public interface MasterProgramRepository extends JpaRepository<MasterProgramEnti
     List<MasterProgramEntity> findByAreaIdWithArea(@Param("areaId") Long areaId);
 
     List<MasterProgramEntity> findByAreaId(Long areaId);
+
+    Page<MasterProgramEntity> findByNameContainingIgnoreCase(String name, Pageable pageable);
 }

@@ -1,0 +1,180 @@
+---
+import AuthLayout from '../layouts/AuthLayout.astro';
+---
+
+<AuthLayout title="Iniciar Sesión">
+  <div class="login-container">
+    <div class="login-card glass-surface">
+      <div class="login-header">
+        <h1 class="logo">Sistema</h1>
+        <h2 class="subtitle">Iniciar Sesión</h2>
+      </div>
+
+      <form id="loginForm" class="login-form">
+        <div class="form-group">
+          <input
+            type="text"
+            id="username"
+            name="username"
+            placeholder="Ingresa tu usuario"
+            required
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Ingresa tu contraseña"
+            required
+            class="form-input"
+          />
+        </div>
+
+        <button type="submit" class="submit-button">Ingresar</button>
+
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+      </form>
+    </div>
+  </div>
+</AuthLayout>
+
+<style>
+  .login-container {
+    width: 100%;
+    max-width: 420px;
+    padding: 16px;
+  }
+
+  .login-card {
+    padding: 48px 32px;
+  }
+
+  .login-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .logo {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin: 0 0 8px 0;
+  }
+
+  .subtitle {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--color-text);
+    margin: 0;
+  }
+
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-input {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: var(--radius-input);
+    padding: 10px 14px;
+    font-size: 14px;
+    color: var(--color-text);
+    font-family: var(--font-family);
+    transition: var(--transition-base);
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(232, 82, 26, 0.15);
+  }
+
+  .submit-button {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-button);
+    font-weight: 600;
+    padding: 11px 0;
+    width: 100%;
+    font-size: 14px;
+    font-family: var(--font-family);
+    cursor: pointer;
+    transition: var(--transition-base);
+    margin-top: 8px;
+  }
+
+  .submit-button:hover {
+    background: var(--color-primary-hover);
+    transform: scale(0.98);
+  }
+
+  .submit-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .error-message {
+    padding: 12px;
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: var(--radius-input);
+    font-size: 14px;
+    text-align: center;
+  }
+</style>
+
+<script>
+  const form = document.getElementById('loginForm') as HTMLFormElement;
+  const errorMessage = document.getElementById('errorMessage') as HTMLDivElement;
+  const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(form);
+    const username = formData.get('username') as string;
+    const password = formData.get('password') as string;
+
+    errorMessage.style.display = 'none';
+    submitButton.disabled = true;
+    submitButton.textContent = 'Cargando...';
+
+    try {
+      /*const apiUrl = import.meta.env.PUBLIC_API_URL;
+      const response = await fetch(`${apiUrl}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Credenciales inválidas');
+      }
+
+      const data = await response.json();
+      localStorage.setItem('auth_token', data.token);*/
+      localStorage.setItem('auth_token', 'token');
+      window.location.href = '/app/data-upload';
+    } catch (error: any) {
+      errorMessage.textContent = error.message || 'Error al iniciar sesión. Verifica tus credenciales.';
+      errorMessage.style.display = 'block';
+      submitButton.disabled = false;
+      submitButton.textContent = 'Ingresar';
+    }
+  });
+</script>
