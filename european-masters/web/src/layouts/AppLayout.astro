@@ -1,0 +1,42 @@
+---
+import '../styles/glass.css';
+import AppSidebar from '../components/sidebar/AppSidebar.vue';
+
+interface Props {
+  title?: string;
+}
+
+const { title = 'Sistema de Gestión' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="app-shell">
+      <AppSidebar client:load currentPath={Astro.url.pathname} />
+      <main class="app-shell__content">
+        <slot />
+      </main>
+    </div>
+  </body>
+</html>
+
+<script>
+  if (typeof window !== 'undefined') {
+    const authToken = localStorage.getItem('auth_token');
+    if (!authToken) {
+      window.location.href = '/login';
+    }
+  }
+</script>
+
+<style>
+  /* Layout styling lives in src/styles/glass.css via .app-shell tokens */
+</style>
