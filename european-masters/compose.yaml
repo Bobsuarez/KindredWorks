@@ -39,7 +39,7 @@ services:
       - MAIL_USERNAME=${MAIL_USER_SECRET_GIT}
       - MAIL_PASSWORD=${MAIL_PASS_SECRET_GIT}
 
-      # Dirección de remitente verificada en SES 
+      # Dirección de remitente verificada en SES
       - EMAIL_FROM=${EMAIL_FROM_VARIABLE_GIT:-andres.asesorias@kinforgeworks.com}
     ports:
       - "8080:8080"
@@ -48,14 +48,17 @@ services:
     networks:
       - kinForge-net
 
-#  em-landing:
-#    image: nginx:stable-alpine
-#    container_name: em-landing
-#    depends_on:
-#      - em-db
-#      - em-backend
-#    networks:
-#      - kinForge-net
+  em-web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      args:
+        PUBLIC_API_URL: ${PUBLIC_API_URL:-http://em-backend:8080}
+        PUBLIC_SITE_NAME: ${PUBLIC_SITE_NAME:-sitename.kinforgeworks.com}
+    image: mi-astro-app:latest
+    restart: unless-stopped
+    networks:
+      - kinForge-net
 
 networks:
   kinForge-net:
