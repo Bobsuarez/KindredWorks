@@ -52,7 +52,7 @@ const fileInput = ref<HTMLInputElement | null>(null);
 const fetchDegrees = async () => {
   isLoading.value = true;
   try {
-    const response = await apiClient.get('/api/v1/degrees', {
+    const response = await apiClient.get('/v1/degrees', {
       params: {
         page: currentPage.value - 1,
         size: pageSize.value,
@@ -114,7 +114,7 @@ const createDegree = async () => {
     data.append('data',  new Blob([JSON.stringify({ name: formData.value.name, areaId: 1 })], { type: "application/json" }));
     if (formData.value.file) data.append('curriculum', formData.value.file);
 
-    await apiClient.post('api/v1/degrees', data, {
+    await apiClient.post('/v1/degrees', data, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
     resetForm();
@@ -134,7 +134,7 @@ const updateDegree = async () => {
     data.append('data',  new Blob([JSON.stringify({ name: formData.value.name, areaId: 1 })], { type: "application/json" }));
     if (formData.value.file) data.append('curriculum', formData.value.file);
 
-    await apiClient.put(`/api/v1/degrees/${selectedDegree.value.id}`, data, {
+    await apiClient.put(`/v1/degrees/${selectedDegree.value.id}`, data, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
     resetForm();
@@ -173,7 +173,7 @@ const deleteDegree = async () => {
   if (!degreeToDelete.value) return;
   isLoading.value = true;
   try {
-    await apiClient.delete(`/api/v1/degrees/${degreeToDelete.value.id}`);
+    await apiClient.delete(`/v1/degrees/${degreeToDelete.value.id}`);
     showDeleteModal.value = false;
     degreeToDelete.value = null;
     fetchDegrees();
@@ -187,7 +187,7 @@ const deleteDegree = async () => {
 const downloadPdf = async (id: number) => {
   isLoading.value = true;
   try {
-    const response = await apiClient.get(`/api/v1/degrees/${id}/pdf`, {
+    const response = await apiClient.get(`/v1/degrees/${id}/pdf`, {
       responseType: 'blob'
     });
     
