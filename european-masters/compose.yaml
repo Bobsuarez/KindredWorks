@@ -13,8 +13,6 @@ services:
       - ./postgrest:/docker-entrypoint-initdb.d
       # Volumen persistente para los datos
       - em-db-data:/var/lib/postgresql/data
-    ports:
-      - "5435:5432"
     networks:
       - kinForge-net
 
@@ -41,8 +39,6 @@ services:
 
       # Dirección de remitente verificada en SES
       - EMAIL_FROM=${EMAIL_FROM_VARIABLE_GIT:-andres.asesorias@kinforgeworks.com}
-    ports:
-      - "8080:8080"
     depends_on:
       - em-db
     networks:
@@ -52,9 +48,6 @@ services:
     build:
       context: ./web
       dockerfile: Dockerfile
-      args:
-        PUBLIC_API_URL: ${PUBLIC_API_URL:-http://em-backend:8080}
-        PUBLIC_SITE_NAME: ${PUBLIC_SITE_NAME:-sitename.kinforgeworks.com}
     image: mi-astro-app:latest
     restart: unless-stopped
     networks:
