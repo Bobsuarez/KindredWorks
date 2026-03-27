@@ -74,7 +74,7 @@ const uploadFile = async () => {
   formData.append('file', selectedFile.value);
 
   try {
-    await apiClient.post('/api/data/upload', formData, {
+    await apiClient.post('/data/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
