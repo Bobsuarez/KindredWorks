@@ -1,6 +1,16 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import apiClient from '../../services/apiClient';
+import DataTable from '../common/DataTable.vue';
+import type { Column } from '../common/DataTable.vue';
+
+interface ImportRecord {
+  id: number;
+  fileName: string;
+  status: string;
+  createdAt: string;
+  // Añade otros campos relevantes según el backend
+}
 
 const fileInput = ref<HTMLInputElement | null>(null);
 const selectedFile = ref<File | null>(null);
@@ -10,6 +20,53 @@ const uploadStatus = ref<'idle' | 'success' | 'error'>('idle');
 const errorMessage = ref('');
 
 const acceptedFormats = '.csv, .xlsx, .json';
+
+// Table state
+const imports = ref<ImportRecord[]>([]);
+const totalRecords = ref(0);
+const currentPage = ref(1);
+const pageSize = ref(10);
+const searchQuery = ref('');
+const isTableLoading = ref(false);
+
+const tableColumns: Column[] = [
+  { key: 'id', label: '# ID', slot: true },
+  { key: 'fileName', label: 'Nombre de Archivo', slot: true },
+  { key: 'status', label: 'Estado', slot: true },
+  { key: 'createdAt', label: 'Fecha de Carga', slot: true }
+];
+
+const fetchImports = async () => {
+  isTableLoading.value = true;
+  try {
+    const response = await apiClient.get('/v1/imports', {
+      params: {
+        page: currentPage.value - 1,
+        size: pageSize.value,
+        search: searchQuery.value
+      }
+    });
+    imports.value = response.data.content || [];
+    totalRecords.value = response.data.totalElements || 0;
+  } catch (error) {
+    console.error('Error fetching imports:', error);
+  } finally {
+    isTableLoading.value = false;
+  }
+};
+
+let searchTimeout: any;
+watch(searchQuery, () => {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    currentPage.value = 1;
+    fetchImports();
+  }, 300);
+});
+
+onMounted(() => {
+  fetchImports();
+});
 
 const handleFileSelect = (event: Event) => {
   const target = event.target as HTMLInputElement;
@@ -63,6 +120,11 @@ const formatFileSize = (bytes: number): string => {
   return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
 };
 
+const formatDate = (dateStr: string) => {
+  if (!dateStr) return '';
+  return new Date(dateStr).toLocaleDateString('es-ES');
+};
+
 const uploadFile = async () => {
   if (!selectedFile.value) return;
 
@@ -74,13 +136,14 @@ const uploadFile = async () => {
   formData.append('file', selectedFile.value);
 
   try {
-    await apiClient.post('/data/upload', formData, {
+    await apiClient.post('/v1/imports', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
 
     uploadStatus.value = 'success';
+    fetchImports(); // Refresh table
     setTimeout(() => {
       removeFile();
     }, 3000);
@@ -100,59 +163,96 @@ const uploadFile = async () => {
       <p class="subtitle">Sube tu archivo para procesarlo en el sistema.</p>
     </div>
 
-    <div
-      :class="['upload-area', 'glass-surface', { dragging: isDragging }]"
-      @dragenter="handleDragEnter"
-      @dragleave="handleDragLeave"
-      @dragover="handleDragOver"
-      @drop="handleDrop"
-      @click="triggerFileInput"
-    >
-      <input
-        ref="fileInput"
-        type="file"
-        :accept="acceptedFormats"
-        @change="handleFileSelect"
-        class="file-input"
-      />
+    <!-- Upload Form -->
+    <div class="upload-section glass-surface">
+      <div
+        :class="['upload-area', { dragging: isDragging }]"
+        @dragenter="handleDragEnter"
+        @dragleave="handleDragLeave"
+        @dragover="handleDragOver"
+        @drop="handleDrop"
+        @click="triggerFileInput"
+      >
+        <input
+          ref="fileInput"
+          type="file"
+          :accept="acceptedFormats"
+          @change="handleFileSelect"
+          class="file-input"
+        />
 
-      <div v-if="!selectedFile" class="upload-placeholder">
-        <div class="upload-icon">📁</div>
-        <p class="upload-text">Arrastra tu archivo aquí</p>
-        <p class="upload-subtext">o haz clic para seleccionar</p>
-        <p class="accepted-formats">Formatos aceptados: {{ acceptedFormats }}</p>
-      </div>
+        <div v-if="!selectedFile" class="upload-placeholder">
+          <div class="upload-icon">📁</div>
+          <p class="upload-text">Arrastra tu archivo aquí</p>
+          <p class="upload-subtext">o haz clic para seleccionar</p>
+          <p class="accepted-formats">Formatos aceptados: {{ acceptedFormats }}</p>
+        </div>
 
-      <div v-else class="file-info">
-        <div class="file-details">
-          <span class="file-icon">📄</span>
-          <div class="file-meta">
-            <p class="file-name">{{ selectedFile.name }}</p>
-            <p class="file-size">{{ formatFileSize(selectedFile.size) }}</p>
+        <div v-else class="file-info">
+          <div class="file-details">
+            <span class="file-icon">📄</span>
+            <div class="file-meta">
+              <p class="file-name">{{ selectedFile.name }}</p>
+              <p class="file-size">{{ formatFileSize(selectedFile.size) }}</p>
+            </div>
+            <button @click.stop="removeFile" class="remove-button">×</button>
           </div>
-          <button @click.stop="removeFile" class="remove-button">×</button>
         </div>
       </div>
+
+      <button
+        v-if="selectedFile"
+        @click="uploadFile"
+        :disabled="isUploading || !selectedFile"
+        class="upload-button"
+      >
+        <span v-if="isUploading">Cargando archivo...</span>
+        <span v-else>Cargar Archivo</span>
+      </button>
+
+      <div v-if="uploadStatus === 'success'" class="status-message success">
+        <span class="status-icon">✓</span>
+        <span>Archivo cargado exitosamente.</span>
+      </div>
+
+      <div v-if="uploadStatus === 'error'" class="status-message error">
+        <span class="status-icon">✕</span>
+        <span>{{ errorMessage }}</span>
+      </div>
     </div>
 
-    <button
-      v-if="selectedFile"
-      @click="uploadFile"
-      :disabled="isUploading || !selectedFile"
-      class="upload-button"
-    >
-      <span v-if="isUploading">Cargando archivo...</span>
-      <span v-else>Cargar Archivo</span>
-    </button>
+    <!-- Imports Table -->
+    <div class="table-section-wrapper">
+      <DataTable
+        title="Historial de Cargas"
+        icon="📊"
+        :columns="tableColumns"
+        :data="imports"
+        :totalRecords="totalRecords"
+        v-model:currentPage="currentPage"
+        v-model:pageSize="pageSize"
+        v-model:searchQuery="searchQuery"
+        searchPlaceholder="Buscar por nombre de archivo..."
+        :isLoading="isTableLoading"
+        emptyMessage="No se encontraron cargas previas."
+        @fetch="fetchImports"
+      >
+        <template #cell-id="{ row }">
+          <span class="id-cell">#{{ String(row.id).padStart(3, '0') }}</span>
+        </template>
 
-    <div v-if="uploadStatus === 'success'" class="status-message success">
-      <span class="status-icon">✓</span>
-      <span>Archivo cargado exitosamente.</span>
-    </div>
+        <template #cell-fileName="{ row }">
+          <span class="file-name-cell">{{ row.originalName || 'N/A' }}</span>
+        </template>
 
-    <div v-if="uploadStatus === 'error'" class="status-message error">
-      <span class="status-icon">✕</span>
-      <span>{{ errorMessage }}</span>
+        <template #cell-status="{ row }">
+          <span :class="['status-badge', row.status?.toLowerCase()]">{{ row.status || 'Completado' }}</span>
+        </template>
+
+        <template #cell-createdAt="{ row }">
+          {{ formatDate(row.createdAt) }}
+        </template>
+      </DataTable>
     </div>
 
     <div v-if="isUploading" class="loading-overlay">
@@ -182,6 +282,48 @@ const uploadFile = async () => {
   font-size: 14px;
   color: var(--color-text-muted);
   margin: 0;
+}
+
+.upload-section {
+  padding: 32px;
+  margin-bottom: 32px;
+}
+
+.table-section-wrapper {
+  margin-top: 32px;
+}
+
+.id-cell {
+  font-weight: 700;
+}
+
+.file-name-cell {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.status-badge {
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--color-divider);
+  color: var(--color-text);
+}
+
+.status-badge.success {
+  background: rgba(52, 211, 153, 0.2);
+  color: #059669;
+}
+
+.status-badge.error {
+  background: rgba(239, 68, 68, 0.2);
+  color: #dc2626;
+}
+
+.status-badge.pending {
+  background: rgba(245, 158, 11, 0.2);
+  color: #d97706;
 }
 
 .upload-area {

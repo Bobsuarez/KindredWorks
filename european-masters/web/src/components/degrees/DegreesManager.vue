@@ -3,6 +3,8 @@ import { ref, onMounted, computed, watch } from 'vue';
 import apiClient from '../../services/apiClient';
 import BaseModal from '../common/BaseModal.vue';
 import ErrorModal from '../common/ErrorModal.vue';
+import DataTable from '../common/DataTable.vue';
+import type { Column } from '../common/DataTable.vue';
 
 interface Degree {
   id: number;
@@ -215,6 +217,21 @@ const paginatedRange = computed(() => {
 const formatId = (id: number) => `#${String(id).padStart(3, '0')}`;
 const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('es-ES');
 
+const tableColumns: Column[] = [
+  { key: 'id', label: '# ID', slot: true },
+  { key: 'name', label: 'Nombre de la Maestría', slot: true },
+  { key: 'pdf', label: 'Archivo PDF', slot: true },
+  { key: 'createdAt', label: 'Fecha de Registro', slot: true },
+  { key: 'actions', label: 'Acciones', slot: true }
+];
+
+const tableData = computed(() => {
+  return degrees.value.map(degree => ({
+    ...degree,
+    _isEditing: selectedDegree.value?.id === degree.id
+  }));
+});
+
 onMounted(fetchDegrees);
 </script>
 
@@ -302,103 +319,53 @@ onMounted(fetchDegrees);
     </section>
 
     <!-- Table Section -->
-    <section class="glass-surface table-section">
-      <header class="table-header">
-        <div class="header-left">
-          <h3 class="table-title">
-            <span class="header-icon">📑</span> Listado de Programas
-          </h3>
-          <p v-if="isEditMode" class="table-subtitle">Total: {{ totalRecords }} programas registrados</p>
-        </div>
-        <div class="header-right">
-          <span class="count-badge">{{ totalRecords }} Registros Totales</span>
-        </div>
-      </header>
+    <DataTable
+      title="Listado de Programas"
+      icon="📑"
+      :subtitle="isEditMode ? `Total: ${totalRecords} programas registrados` : undefined"
+      :columns="tableColumns"
+      :data="tableData"
+      :totalRecords="totalRecords"
+      v-model:currentPage="currentPage"
+      v-model:pageSize="pageSize"
+      v-model:searchQuery="searchQuery"
+      searchPlaceholder="Buscar por nombre de maestría..."
+      :isLoading="isLoading"
+      emptyMessage="No se encontraron programas."
+      @fetch="fetchDegrees"
+    >
+      <template #cell-id="{ row }">
+        <span class="id-cell">{{ formatId(row.id) }}</span>
+      </template>
 
-      <div class="table-toolbar">
-        <div class="search-box">
-          <span class="search-icon">🔍</span>
-          <input 
-            v-model="searchQuery"
-            type="text" 
-            placeholder="Buscar por nombre de maestría..." 
-            class="search-input"
-          />
+      <template #cell-name="{ row }">
+        <div class="name-container" :title="row.name">
+          <span class="degree-name">{{ row.name }}</span>
+          <div v-if="selectedDegree?.id === row.id" class="editing-label">ACTUALMENTE EDITANDO</div>
         </div>
-        <div class="table-info">
-          Mostrando {{ paginatedRange.start }}–{{ paginatedRange.end }} de {{ totalRecords }} programas
-        </div>
-      </div>
+      </template>
 
-      <div class="table-container">
-        <table class="degrees-table">
-          <thead>
-            <tr>
-              <th># ID</th>
-              <th>Nombre de la Maestría</th>
-              <th>Archivo PDF</th>
-              <th>Fecha de Registro</th>
-              <th class="actions-cell">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr 
-              v-for="degree in degrees" 
-              :key="degree.id"
-              :class="{ 'row-editing': selectedDegree?.id === degree.id }"
-            >
-              <td class="id-cell">{{ formatId(degree.id) }}</td>
-              <td>
-                <div class="name-container" :title="degree.name">
-                  <span class="degree-name">{{ degree.name }}</span>
-                  <div v-if="selectedDegree?.id === degree.id" class="editing-label">ACTUALMENTE EDITANDO</div>
-                </div>
-              </td>
-              <td>
-                <button class="pdf-link-btn" @click="downloadPdf(degree.id)">
-                  <span class="pdf-icon">📄</span> {{ degree.pdfCurriculumPath.substring(degree.pdfCurriculumPath.lastIndexOf('/') + 1) }}
-                </button>
-              </td>
-              <td>{{ formatDate(degree.createdAt) }}</td>
-              <td class="actions-cell">
-                <button class="action-btn edit" title="Editar" @click="enterEditMode(degree)">
-                  ✏️
-                </button>
-                <button class="action-btn delete" title="Eliminar" @click="confirmDelete(degree)">
-                  🗑️
-                </button>
-              </td>
-            </tr>
-            <tr v-if="degrees.length === 0 && !isLoading">
-              <td colspan="5" class="empty-state">No se encontraron programas.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <template #cell-pdf="{ row }">
+        <button class="pdf-link-btn" @click="downloadPdf(row.id)">
+          <span class="pdf-icon">📄</span> {{ row.pdfCurriculumPath?.substring(row.pdfCurriculumPath.lastIndexOf('/') + 1) }}
+        </button>
+      </template>
 
-      <footer class="table-footer">
-        <div class="page-size">
-          Filas por página: 
-          <input v-model.number="pageSize" type="number" class="size-input" @change="fetchDegrees" />
+      <template #cell-createdAt="{ row }">
+        {{ formatDate(row.createdAt) }}
+      </template>
+
+      <template #cell-actions="{ row }">
+        <div class="actions-cell">
+          <button class="action-btn edit" title="Editar" @click="enterEditMode(row)">
+            ✏️
+          </button>
+          <button class="action-btn delete" title="Eliminar" @click="confirmDelete(row)">
+            🗑️
+          </button>
         </div>
-        <div class="pagination">
-          <span class="page-info">Página {{ currentPage }} de {{ totalPages }}</span>
-          <div class="page-controls">
-            <button class="page-btn" :disabled="currentPage === 1" @click="currentPage--; fetchDegrees()">‹</button>
-            <button 
-              v-for="p in totalPages" 
-              :key="p" 
-              class="page-btn" 
-              :class="{ active: p === currentPage }"
-              @click="currentPage = p; fetchDegrees()"
-            >
-              {{ p }}
-            </button>
-            <button class="page-btn" :disabled="currentPage === totalPages" @click="currentPage++; fetchDegrees()">›</button>
-          </div>
-        </div>
-      </footer>
-    </section>
+      </template>
+    </DataTable>
 
     <!-- Delete Confirmation Modal -->
     <BaseModal
@@ -637,90 +604,7 @@ onMounted(fetchDegrees);
   cursor: pointer;
 }
 
-/* Table Section */
-.table-section {
-  padding: 24px;
-}
-
-.table-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.table-title {
-  font-size: 18px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.count-badge {
-  background: var(--color-divider);
-  padding: 6px 12px;
-  border-radius: var(--radius-pill);
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.table-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.search-box {
-  position: relative;
-  width: 320px;
-}
-
-.search-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--color-text-muted);
-}
-
-.search-input {
-  width: 100%;
-  padding: 10px 10px 10px 36px;
-  border-radius: var(--radius-input);
-  border: 1px solid var(--color-border);
-  background: rgba(255, 255, 255, 0.5);
-}
-
-.table-info {
-  font-size: 12px;
-  color: var(--color-text-muted);
-}
-
-.table-container {
-  overflow-x: auto;
-}
-
-.degrees-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.degrees-table th {
-  text-align: left;
-  padding: 16px;
-  font-size: 12px;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-  border-bottom: 1px solid var(--color-divider);
-}
-
-.degrees-table td {
-  padding: 16px;
-  border-bottom: 1px solid var(--color-divider);
-}
-
+/* Custom Table Cells */
 .id-cell {
   font-weight: 700;
 }
@@ -739,10 +623,6 @@ onMounted(fetchDegrees);
   font-size: 11px;
   font-weight: 600;
   margin-top: 4px;
-}
-
-.row-editing {
-  background: var(--color-active-surface);
 }
 
 .pdf-link-btn {
@@ -792,54 +672,6 @@ onMounted(fetchDegrees);
 .action-btn.delete:hover {
   border-color: #ff4d4f;
   color: #ff4d4f;
-}
-
-/* Pagination */
-.table-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 24px;
-}
-
-.size-input {
-  width: 60px;
-  padding: 6px;
-  border-radius: 6px;
-  border: 1px solid var(--color-border);
-  margin-left: 8px;
-}
-
-.pagination {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.page-controls {
-  display: flex;
-  gap: 4px;
-}
-
-.page-btn {
-  min-width: 32px;
-  height: 32px;
-  border: 1px solid var(--color-border);
-  background: white;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: var(--transition-base);
-}
-
-.page-btn.active {
-  background: var(--color-primary);
-  color: white;
-  border-color: var(--color-primary);
-}
-
-.page-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 /* Modal */

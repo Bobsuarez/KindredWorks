@@ -10,8 +10,8 @@ public class CorsConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOriginPatterns(
-                    "http://localhost:4321",
-                    "https://european-masters-web.kinforgeworks.com"
+                        "http://localhost:4321",
+                        "https://european-masters-web.kinforgeworks.com"
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                 .allowedHeaders("*")

@@ -2,7 +2,6 @@ package com.kinforgework.cplaneta.service;
 
 import com.kinforgework.cplaneta.dto.MasterProgramRequest;
 import com.kinforgework.cplaneta.dto.MasterProgramResponse;
-import com.kinforgework.cplaneta.entities.AreaEntity;
 import com.kinforgework.cplaneta.entities.MasterProgramEntity;
 import com.kinforgework.cplaneta.exception.ResourceNotFoundException;
 import com.kinforgework.cplaneta.mapper.MasterProgramMapper;
@@ -16,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -26,7 +24,6 @@ public class MasterProgramService {
 
     private final MasterProgramRepository masterProgramRepository;
     private final MasterProgramMapper masterProgramMapper;
-    private final AreaService areaService;
     private final FileStorageService fileStorageService;
 
     @Transactional(readOnly = true)
@@ -40,13 +37,6 @@ public class MasterProgramService {
         return masterProgramMapper.toResponse(getProgramOrThrow(id));
     }
 
-    @Transactional(readOnly = true)
-    public List<MasterProgramResponse> findByArea(Long areaId) {
-        return masterProgramRepository.findByAreaIdWithArea(areaId)
-                .stream()
-                .map(masterProgramMapper::toResponse)
-                .toList();
-    }
 
     @Transactional(readOnly = true)
     public byte[] getCurriculumPdf(Long id) throws IOException {
@@ -70,11 +60,8 @@ public class MasterProgramService {
             MultipartFile subjectImage
     ) throws IOException {
 
-        AreaEntity areaEntity = areaService.getAreaOrThrow(request.areaId());
-
         MasterProgramEntity program = MasterProgramEntity.builder()
                 .name(request.name())
-                .area(areaEntity)
                 .pdfCurriculumPath("PENDING")
                 .subjectImagePath("PENDING")
                 .build();
@@ -104,10 +91,8 @@ public class MasterProgramService {
     ) throws IOException {
 
         MasterProgramEntity program = getProgramOrThrow(id);
-        AreaEntity areaEntity = areaService.getAreaOrThrow(request.areaId());
 
         program.setName(request.name());
-        program.setArea(areaEntity);
 
         if (curriculum != null && !curriculum.isEmpty()) {
             String oldPath = program.getPdfCurriculumPath();
@@ -143,7 +128,8 @@ public class MasterProgramService {
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                }).orElse("");
+                })
+                .orElse("");
     }
 
     MasterProgramEntity getProgramOrThrow(Long id) {

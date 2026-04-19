@@ -1,10 +1,10 @@
 package com.kinforgework.cplaneta.service.notification.strategy.context;
 
 import com.kinforgework.cplaneta.entities.ContactEntity;
-import com.kinforgework.cplaneta.enums.ContactStatus;
-import com.kinforgework.cplaneta.enums.DeliveryStatus;
 import com.kinforgework.cplaneta.entities.MasterProgramEntity;
 import com.kinforgework.cplaneta.entities.MessageLogEntity;
+import com.kinforgework.cplaneta.enums.ContactStatus;
+import com.kinforgework.cplaneta.enums.DeliveryStatus;
 import com.kinforgework.cplaneta.repository.ContactRepository;
 import com.kinforgework.cplaneta.service.notification.ContactQueueService;
 import com.kinforgework.cplaneta.service.notification.MessageLogService;
@@ -49,7 +49,7 @@ public class MessageDispatchService {
 
         if (maybeContact.isEmpty()) {
             log.info("No pending contacts in queue. Skipping cycle.");
-            return false;
+            return Boolean.FALSE;
         }
 
         ContactEntity contactEntity = maybeContact.get();
@@ -80,6 +80,6 @@ public class MessageDispatchService {
 
         contactRepository.save(contactEntity);
 
-        return true;
+        return Boolean.TRUE;
     }
 }

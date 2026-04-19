@@ -5,33 +5,38 @@
 CREATE SCHEMA IF NOT EXISTS public;
 
 -- ------------------------------------------------------------
--- Table: areas
--- ------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS areas (
-    id          BIGSERIAL       PRIMARY KEY,
-    name        VARCHAR(150)    NOT NULL UNIQUE,
-    created_at  TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
-    updated_at  TIMESTAMPTZ     NOT NULL DEFAULT NOW()
-);
-
--- ------------------------------------------------------------
 -- Table: master_programs
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS master_programs (
     id                   BIGSERIAL       PRIMARY KEY,
-    name                 VARCHAR(300)    NOT NULL,
-    area_id              BIGINT          NOT NULL,
-    pdf_curriculum_path  VARCHAR(512)    NOT NULL,
-    subject_image_path   VARCHAR(512)    NOT NULL,
+    name                 VARCHAR(300)    NOT NULL UNIQUE,
+    pdf_curriculum_path  VARCHAR(512)    NULL,
+    subject_image_path   VARCHAR(512)    NULL,
     created_at           TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
-    updated_at           TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
-
-    CONSTRAINT fk_master_programs_area
-        FOREIGN KEY (area_id) REFERENCES areas(id)
-        ON DELETE RESTRICT ON UPDATE CASCADE
+    updated_at           TIMESTAMPTZ     NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_master_programs_area_id ON master_programs(area_id);
+CREATE INDEX IF NOT EXISTS idx_master_programs_name ON master_programs(name);
+
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+-- ------------------------------------------------------------
+-- Table: import_jobs
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS import_jobs (
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    filename      TEXT NOT NULL,
+    original_name TEXT,
+    status        TEXT DEFAULT 'PENDING',
+    total_rows    INT,
+    processed     INT DEFAULT 0,
+    errors        INT DEFAULT 0,
+    created_at    TIMESTAMP DEFAULT NOW(),
+    finished_at   TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_import_jobs_status ON import_jobs(status);
+CREATE INDEX IF NOT EXISTS idx_import_jobs_created_at ON import_jobs(created_at);
+CREATE INDEX IF NOT EXISTS idx_import_jobs_finished_at ON import_jobs(finished_at);
 
 -- ------------------------------------------------------------
 -- Table: contacts
@@ -47,7 +52,7 @@ CREATE TYPE contact_status AS ENUM ('PENDING', 'SENT', 'ERROR');
 CREATE TABLE contacts (
     id                BIGSERIAL       PRIMARY KEY,
     name              VARCHAR(200)    NOT NULL,
-    email             VARCHAR(320)    NOT NULL,
+    email             VARCHAR(320)    NOT NULL UNIQUE,
     phone_number      VARCHAR(30)     NOT NULL,
     master_program_id BIGINT          NOT NULL,
     status            contact_status  NOT NULL DEFAULT 'PENDING'::contact_status,
@@ -103,10 +108,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_areas_updated_at
-    BEFORE UPDATE ON areas
-    FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-
 CREATE TRIGGER trg_master_programs_updated_at
     BEFORE UPDATE ON master_programs
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
@@ -114,12 +115,3 @@ CREATE TRIGGER trg_master_programs_updated_at
 CREATE TRIGGER trg_contacts_updated_at
     BEFORE UPDATE ON contacts
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-
--- ------------------------------------------------------------
--- Seed data – academic areas
--- ------------------------------------------------------------
-INSERT INTO areas (name) VALUES
-    ('Comunicación'),
-    ('Empresas'),
-    ('Artes')
-ON CONFLICT (name) DO NOTHING;

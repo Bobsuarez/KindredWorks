@@ -1,7 +1,6 @@
 spring:
   application:
     name: cplaneta
-
   datasource:
     # Para Docker: por defecto apunta al servicio em-db definido en docker-compose
     url: ${SPRING_DATASOURCE_URL}
@@ -12,7 +11,6 @@ spring:
       maximum-pool-size: 10
       minimum-idle: 2
       connection-timeout: 30000
-
   jpa:
     hibernate:
       ddl-auto: none
@@ -22,7 +20,6 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
         default_schema: public
-
   mail:
     host: ${MAIL_HOST}
     port: ${MAIL_PORT}
@@ -38,11 +35,18 @@ spring:
         connectiontimeout: 5000
         timeout: 5000
         writetimeout: 5000
-
   task:
     scheduling:
       pool:
         size: 1
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
 
 server:
   port: 8080
@@ -57,6 +61,8 @@ app:
     window-start-hour: 7
     window-end-hour: 19
     daily-limit: 300
+  upload-dir: ${UPLOAD_DIR}
+  podman-api-host: ${PODMAN_API_URL}
 
   file-storage:
     # NOTE: Don't point this to src/main/resources in production; packaged apps

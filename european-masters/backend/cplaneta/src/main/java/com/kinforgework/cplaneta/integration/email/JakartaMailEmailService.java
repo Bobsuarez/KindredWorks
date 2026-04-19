@@ -5,12 +5,12 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import org.springframework.core.io.ClassPathResource;
 import java.io.File;
 
 @Service
@@ -81,13 +81,13 @@ public class JakartaMailEmailService implements EmailService {
     private String buildTextBody(String recipientName, String programName) {
         return """
                 Hola %s,
-
+                
                 Le invitamos a conocer más sobre nuestro programa de posgrado: %s.
-
+                
                 Adjuntamos la malla curricular completa del programa en formato PDF.
                 También puede contactarnos directamente por WhatsApp para resolver cualquier duda
                 o recibir asesoría sobre el proceso de admisión.
-
+                
                 Atentamente,
                 Oficina de Posgrados
                 """.formatted(recipientName, programName);
@@ -107,7 +107,7 @@ public class JakartaMailEmailService implements EmailService {
                               <img src="cid:portadaImage" alt="Portada programa" style="display:block; width:100%%; max-width:600px; border:0;"/>
                             </td>
                           </tr>
-
+                
                           <!-- Cuerpo de texto principal -->
                           <tr>
                             <td style="padding:24px;">
@@ -150,14 +150,14 @@ public class JakartaMailEmailService implements EmailService {
                               </p>
                             </td>
                           </tr>
-
+                
                           <!-- Imagen del programa (subjectImage) -->
                           <tr>
                             <td align="center" style="padding:0 24px 24px 24px;">
                               <img src="cid:subjectImage" alt="Imagen del programa" style="display:block; max-width:600px; width:100%%; border:0;"/>
                             </td>
                           </tr>
-
+                
                           <!-- Botón de WhatsApp como imagen clicable -->
                           <tr>
                             <td align="center" style="padding:0 0 32px 0;">
@@ -168,7 +168,7 @@ public class JakartaMailEmailService implements EmailService {
                               </a>
                             </td>
                           </tr>
-
+                
                           <!-- Firma -->
                           <tr>
                             <td align="center" style="padding:0 24px 24px 24px;">
@@ -178,7 +178,7 @@ public class JakartaMailEmailService implements EmailService {
                               </p>
                             </td>
                           </tr>
-
+                
                         </table>
                       </td>
                     </tr>

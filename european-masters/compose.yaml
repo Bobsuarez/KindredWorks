@@ -4,23 +4,35 @@ services:
   em-db:
     image: docker.io/library/postgres:15-alpine
     container_name: em-db
+    ports:
+      - "5433:5432"
     environment:
       - POSTGRES_DB=${DB_NAME:-masters_mailer}
       - POSTGRES_USER=${DB_USERNAME:-postgres}
       - POSTGRES_PASSWORD=${DB_PASSWORD:-bob123}
     volumes:
       # Esquema inicial de la BD (scripts en ./postgrest)
-      - ./postgrest:/docker-entrypoint-initdb.d
+      - ./postgrest/schema.sql:/docker-entrypoint-initdb.d/init.sql:Z
       # Volumen persistente para los datos
       - em-db-data:/var/lib/postgresql/data
     networks:
       - kinForge-net
+
+  em-redis:
+    image: docker.io/library/redis:7-alpine
+    container_name: em-redis
+    restart: unless-stopped
+    networks:
+      - kinForge-net
+    # Sin puerto público — solo accesible dentro de la red interna
 
   em-backend:
     build:
       context: ./backend/cplaneta
       dockerfile: Dockerfile
     container_name: em-backend
+    ports:
+      - "8080:8080"
     environment:
       # Datos de conexión a Postgres (dentro del cluster Docker)
       # IMPORTANTE: dentro de la red interna se usa el puerto del contenedor (5432), no el publicado (5435)
@@ -39,12 +51,49 @@ services:
 
       # Dirección de remitente verificada en SES
       - EMAIL_FROM=${EMAIL_FROM_VARIABLE_GIT:-andres.asesorias@kinforgeworks.com}
+
+      # variabke para el socket
+      # - PODMAN_API_URL=${PODMAN_API_URL_VARIABLE_GIT:-unix:///var/run/podman/podman.sock}
+      - PODMAN_API_URL=${PODMAN_API_URL_VARIABLE_GIT:-http://host.containers.internal:8888/v4.0.0/libpod}
+
+      # Nuevas variables
+      - UPLOAD_DIR=/app/files/excel/
+      - REDIS_HOST=em-redis
+      - REDIS_PORT=6379
+    volumes:
+      - uploads_data:/app/files/excel/
     depends_on:
       - em-db
     networks:
       - kinForge-net
 
+  em-worker:
+    build:
+      context: ./worker                  # carpeta nueva con el ETL Python
+      dockerfile: Dockerfile
+    container_name: em-worker
+    restart: "no"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - UPLOAD_DIR=/app/files/excel/
+      - REDIS_HOST=em-redis
+      - REDIS_PORT=6379
+      - DB_HOST=em-db
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME:-masters_mailer}
+      - DB_USER=${DB_USERNAME:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-bob123}
+    volumes:
+      - uploads_data:/app/files/excel/       # ← mismo volumen, distinto mountpoint
+    depends_on:
+      - em-db
+      - em-redis
+    networks:
+      - kinForge-net
+
   em-web:
+    ports:
+      - "4321:4321"
     build:
       context: ./web
       dockerfile: Dockerfile
@@ -59,3 +108,4 @@ networks:
 
 volumes:
   em-db-data:
+  uploads_data:

@@ -1,7 +1,7 @@
 package com.kinforgework.cplaneta.repository;
 
-import com.kinforgework.cplaneta.enums.DeliveryStatus;
 import com.kinforgework.cplaneta.entities.MessageLogEntity;
+import com.kinforgework.cplaneta.enums.DeliveryStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -2,7 +2,6 @@ package com.kinforgework.cplaneta.repository;
 
 import com.kinforgework.cplaneta.entities.ContactEntity;
 import com.kinforgework.cplaneta.enums.ContactStatus;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,10 +22,10 @@ public interface ContactRepository extends JpaRepository<ContactEntity, Long> {
             SELECT c.*
             FROM contacts c
             JOIN master_programs mp ON c.master_program_id = mp.id
-            JOIN areas a ON mp.area_id = a.id
             WHERE c.status::text = :status
             ORDER BY c.id ASC
             LIMIT 1
+            FOR UPDATE SKIP LOCKED
             """, nativeQuery = true)
     List<ContactEntity> findFirstByStatus(@Param("status") String status);
 

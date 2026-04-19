@@ -1,10 +1,9 @@
 spring:
   application:
     name: cplaneta
-
   datasource:
     # Para Docker: por defecto apunta al servicio em-db definido en docker-compose
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/masters_mailer}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/masters_mailer}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:bob123}
     driver-class-name: org.postgresql.Driver
@@ -12,7 +11,6 @@ spring:
       maximum-pool-size: 10
       minimum-idle: 2
       connection-timeout: 30000
-
   jpa:
     hibernate:
       ddl-auto: none
@@ -22,12 +20,11 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
         default_schema: public
-
   mail:
-    host: ${MAIL_HOST}
-    port: ${MAIL_PORT}
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:534}
+    username: ${MAIL_USERNAME:root}
+    password: ${MAIL_PASSWORD:root}
     properties:
       mail:
         smtp:
@@ -38,11 +35,18 @@ spring:
         connectiontimeout: 5000
         timeout: 5000
         writetimeout: 5000
-
   task:
     scheduling:
       pool:
         size: 1
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
 
 server:
   port: 8080
@@ -57,6 +61,8 @@ app:
     window-start-hour: 7
     window-end-hour: 19
     daily-limit: 300
+  upload-dir: ${UPLOAD_DIR:/app/files/excel/}
+  podman-api-host: ${PODMAN_API_URL:http://localhost/v4.0.0/libpod}
 
   file-storage:
     # NOTE: Don't point this to src/main/resources in production; packaged apps
@@ -70,7 +76,7 @@ app:
     from-number: ${WHATSAPP_FROM_NUMBER:}
 
   email:
-    from-address: ${EMAIL_FROM}
+    from-address: ${EMAIL_FROM:eduar@gmail.com}
     from-name: "Universidad - Programas de Posgrado"
 
 logging:
