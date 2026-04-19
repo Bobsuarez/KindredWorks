@@ -1,0 +1,46 @@
+# .traerules - Estandarización de Ingeniería para European Masters Web
+
+## Stack Tecnológico
+- **Framework Principal**: Astro 5.x (Salida estática configurada).
+- **Framework Frontend**: Vue 3.5+ con `<script setup lang="ts">`.
+- **Estado Global**: Pinia 3.x para persistencia de sesión y datos compartidos.
+- **Estilos**: Tailwind CSS 3.4+ junto con el sistema de diseño "Liquid Glass" definido en `src/styles/glass.css`.
+- **Comunicación API**: Axios 1.13+ con interceptores para JWT en `src/services/apiClient.ts`.
+
+## Arquitectura y Estructura
+- **Estructura de Carpetas**:
+  - `src/components/`: Componentes Vue (atómicos o modulares).
+  - `src/pages/`: Rutas de Astro (index.astro, app/...).
+  - `src/layouts/`: Estructuras base (AppLayout, AuthLayout).
+  - `src/services/`: Clientes de API y lógica de red.
+  - `src/stores/`: Definiciones de Pinia.
+  - `src/styles/`: CSS global y tokens de diseño.
+- **Componentes**: SIEMPRE usar la sintaxis `script setup` en Vue. Los componentes deben ser autocontenidos y utilizar variables de entorno para URLs de API.
+
+## Convenciones de Nomenclatura
+- **Archivos de Componentes**: PascalCase (ej: `DegreesManager.vue`, `AppSidebar.vue`).
+- **Páginas Astro**: kebab-case (ej: `data-upload.astro`).
+- **Variables y Funciones**: camelCase (ej: `fetchDegrees`, `isEditMode`).
+- **Variables CSS**: Prefijo `--color-` para tokens de diseño (ej: `--color-primary`).
+- **Interfaces/Types**: PascalCase (ej: `interface DegreeData`).
+
+## Estilo de Código y Calidad
+- **Tipado**: El sistema DEBE usar TypeScript de forma estricta. Evitar el uso de `any`.
+- **Diseño Liquid Glass**: SIEMPRE heredar estilos de `glass.css`. Los componentes deben usar la clase `.glass-surface` para contenedores principales.
+- **Color Accent**: El color corporativo DEBE ser `#E8521A` (`--color-primary`).
+- **Validación**: Las validaciones de formulario deben ser reactivas y mostrar errores inline en color rojo (`#ff4d4f`).
+
+## Manejo de Errores y API
+- **Peticiones**: SIEMPRE usar `apiClient.ts`. No instanciar Axios manualmente en componentes.
+- **Errores de Red**: Capturar excepciones mediante `try/catch` y delegar la visualización al componente global `ErrorModal.vue`.
+- **Multipart/Form-Data**: Para subida de archivos (PDFs), usar `FormData` y envolver objetos JSON en un `Blob` con tipo `application/json` bajo la clave `data`.
+- **Variables de Entorno**: Las URLs de API DEBEN leerse de `import.meta.env.PUBLIC_API_URL`.
+
+## Seguridad
+- **Autenticación**: El sistema DEBE verificar el `auth_token` en `localStorage` antes de renderizar rutas bajo `/app/`.
+- **Redirección**: Si el token no existe o expira (error 401), el sistema DEBE redirigir inmediatamente a `/login`.
+- **Sanitización**: Los enlaces a archivos externos (PDFs) deben abrirse en pestañas nuevas (`target="_blank"`) con limpieza de URLs temporales.
+
+## Reglas de Interacción con el Asistente
+- **Proactividad**: El asistente DEBE implementar cambios directamente en lugar de sugerirlos.
+- **Verificación**: Antes de finalizar, el asistente DEBE verificar que no existan errores de linter o TS.

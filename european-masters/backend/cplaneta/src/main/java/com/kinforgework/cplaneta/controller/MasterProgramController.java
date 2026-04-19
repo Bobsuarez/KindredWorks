@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/degrees")
@@ -53,11 +52,6 @@ public class MasterProgramController {
     @GetMapping("/{id}")
     public ResponseEntity<MasterProgramResponse> findById(@PathVariable Long id) {
         return ResponseEntity.ok(masterProgramService.findById(id));
-    }
-
-    @GetMapping("/by-area/{areaId}")
-    public ResponseEntity<List<MasterProgramResponse>> findByArea(@PathVariable Long areaId) {
-        return ResponseEntity.ok(masterProgramService.findByArea(areaId));
     }
 
     /**

@@ -4,7 +4,6 @@ import com.kinforgework.cplaneta.entities.ContactEntity;
 import com.kinforgework.cplaneta.enums.ContactStatus;
 import com.kinforgework.cplaneta.repository.ContactRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

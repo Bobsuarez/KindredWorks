@@ -45,7 +45,7 @@ public class FileStorageService {
             throw new IllegalStateException("File storage base directory is not writable: " + baseDir);
         }
         log.info("File storage base directory: '{}'", baseDir.toAbsolutePath()
-                .normalize()
+                        .normalize()
         );
     }
 

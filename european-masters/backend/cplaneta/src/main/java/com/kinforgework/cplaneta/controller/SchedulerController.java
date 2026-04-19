@@ -1,6 +1,6 @@
 package com.kinforgework.cplaneta.controller;
 
-import com.kinforgework.cplaneta.scheduler.MessageScheduler;
+import com.kinforgework.cplaneta.service.MessageSchedulerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,17 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class SchedulerController {
 
-    private final MessageScheduler messageScheduler;
+    private final MessageSchedulerService messageScheduler;
 
-    @PostMapping("/restart")
+    @PostMapping("/start")
     public ResponseEntity<String> restart() {
-        messageScheduler.restart();
+        messageScheduler.start();
         return ResponseEntity.ok("Scheduler reiniciado correctamente.");
-    }
-
-    @PostMapping("/stop")
-    public ResponseEntity<String> stop() {
-        messageScheduler.stop();
-        return ResponseEntity.ok("Scheduler detenido correctamente.");
     }
 }

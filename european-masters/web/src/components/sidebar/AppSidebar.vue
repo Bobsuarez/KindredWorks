@@ -10,6 +10,11 @@ const authStore = useAuthStore();
 
 const navItems = [
   {
+    label: 'Carga de Datos',
+    path: '/app/data-upload',
+    icon: '📁',
+  },
+  {
     label: 'Crear Maestrías',
     path: '/app/degrees',
     icon: '🎓',
@@ -18,12 +23,7 @@ const navItems = [
     label: 'Programación de Eventos',
     path: '/app/events',
     icon: '📅',
-  },
-  {
-    label: 'Carga de Datos',
-    path: '/app/data-upload',
-    icon: '📁',
-  },
+  }
 ];
 
 const isActive = (path: string) => {
@@ -42,12 +42,8 @@ const handleLogout = () => {
     </div>
 
     <nav class="nav-section">
-      <a
-        v-for="item in navItems"
-        :key="item.path"
-        :href="item.path"
-        :class="['nav-item', { active: isActive(item.path) }]"
-      >
+      <a v-for="item in navItems" :key="item.path" :href="item.path"
+        :class="['nav-item', { active: isActive(item.path) }]">
         <span class="nav-icon">{{ item.icon }}</span>
         <span class="nav-label">{{ item.label }}</span>
       </a>

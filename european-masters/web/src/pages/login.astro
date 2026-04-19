@@ -169,7 +169,7 @@ import AuthLayout from '../layouts/AuthLayout.astro';
       const data = await response.json();
       localStorage.setItem('auth_token', data.token);*/
       localStorage.setItem('auth_token', 'token');
-      window.location.href = '/app/data-upload';
+      window.location.href = '/app/degrees';
     } catch (error: any) {
       errorMessage.textContent = error.message || 'Error al iniciar sesión. Verifica tus credenciales.';
       errorMessage.style.display = 'block';
