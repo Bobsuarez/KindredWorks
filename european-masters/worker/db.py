@@ -31,8 +31,8 @@ def get_or_create_programa(cur, nombre):
 
 def insertar_contactos(cur, contactos: list):
     execute_batch(cur, """
-        INSERT INTO contacts (name, phone_number, email, master_program_id)
-        VALUES (%s, %s, %s, %s)
+        INSERT INTO contacts (name, phone_number, country, email, master_program_id)
+        VALUES (%s, %s, %s, %s, %s)
         ON CONFLICT (email) DO NOTHING
     """, contactos, page_size=1000)
 

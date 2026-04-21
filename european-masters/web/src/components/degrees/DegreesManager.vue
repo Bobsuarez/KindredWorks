@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue';
 import apiClient from '../../services/apiClient';
+import { formatDate, formatId } from '../../utils/formatters';
 import BaseModal from '../common/BaseModal.vue';
 import ErrorModal from '../common/ErrorModal.vue';
 import DataTable from '../common/DataTable.vue';
@@ -11,12 +12,15 @@ interface Degree {
   name: string;
   pdfFileName: string;
   pdfCurriculumPath: string;
+  subjectImageName: string;
+  subjectImagePath: string;
   createdAt: string;
 }
 
 interface DegreeFormData {
   name: string;
   file: File | null;
+  subjectImage: File | null;
 }
 
 // State
@@ -43,12 +47,15 @@ const handleApiError = (err: any) => {
 
 const formData = ref<DegreeFormData>({
   name: '',
-  file: null
+  file: null,
+  subjectImage: null
 });
 
 // Drag & Drop state
 const isDragging = ref(false);
+const isDraggingImage = ref(false);
 const fileInput = ref<HTMLInputElement | null>(null);
+const imageInput = ref<HTMLInputElement | null>(null);
 
 // Fetching data
 const fetchDegrees = async () => {
@@ -58,7 +65,9 @@ const fetchDegrees = async () => {
       params: {
         page: currentPage.value - 1,
         size: pageSize.value,
-        search: searchQuery.value
+        search: searchQuery.value,
+        sortBy: 'pdfCurriculumPath',  
+        direction: 'desc'
       }
     });
     degrees.value = response.data.content;
@@ -101,11 +110,42 @@ const onDrop = (event: DragEvent) => {
 
 const validateForm = () => {
   if (!formData.value.name.trim()) {
-    formError.value = 'El nombre es requerido para crear el registro.';
+    formError.value = 'El nombre es requerido.';
     return false;
   }
+  
+  // Si estamos creando, el archivo PDF es obligatorio
+  if (!isEditMode.value && !formData.value.file) {
+    formError.value = 'El archivo PDF es obligatorio para crear el programa.';
+    return false;
+  }
+
+  // Si estamos editando y no hay un archivo nuevo seleccionado, 
+  // verificamos que al menos exista uno previamente cargado
+  if (isEditMode.value && !formData.value.file && !selectedDegree.value?.pdfFileName) {
+    formError.value = 'El programa debe tener un archivo PDF asociado.';
+    return false;
+  }
+
   formError.value = '';
   return true;
+};
+
+const handleImageSelect = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files[0]) {
+    formData.value.subjectImage = target.files[0];
+  }
+};
+
+const onDropImage = (event: DragEvent) => {
+  isDraggingImage.value = false;
+  if (event.dataTransfer?.files && event.dataTransfer.files[0]) {
+    const file = event.dataTransfer.files[0];
+    if (file.type.startsWith('image/')) {
+      formData.value.subjectImage = file;
+    }
+  }
 };
 
 const createDegree = async () => {
@@ -115,6 +155,7 @@ const createDegree = async () => {
     const data = new FormData();
     data.append('data',  new Blob([JSON.stringify({ name: formData.value.name, areaId: 1 })], { type: "application/json" }));
     if (formData.value.file) data.append('curriculum', formData.value.file);
+    if (formData.value.subjectImage) data.append('subjectImage', formData.value.subjectImage);
 
     await apiClient.post('/v1/degrees', data, {
       headers: { 'Content-Type': 'multipart/form-data' }
@@ -135,6 +176,7 @@ const updateDegree = async () => {
     const data = new FormData();
     data.append('data',  new Blob([JSON.stringify({ name: formData.value.name, areaId: 1 })], { type: "application/json" }));
     if (formData.value.file) data.append('curriculum', formData.value.file);
+    if (formData.value.subjectImage) data.append('subjectImage', formData.value.subjectImage);
 
     await apiClient.put(`/v1/degrees/${selectedDegree.value.id}`, data, {
       headers: { 'Content-Type': 'multipart/form-data' }
@@ -153,7 +195,8 @@ const enterEditMode = (degree: Degree) => {
   selectedDegree.value = degree;
   formData.value = {
     name: degree.name,
-    file: null
+    file: null,
+    subjectImage: null
   };
   formError.value = '';
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -162,7 +205,7 @@ const enterEditMode = (degree: Degree) => {
 const resetForm = () => {
   isEditMode.value = false;
   selectedDegree.value = null;
-  formData.value = { name: '', file: null };
+  formData.value = { name: '', file: null, subjectImage: null };
   formError.value = '';
 };
 
@@ -214,12 +257,10 @@ const paginatedRange = computed(() => {
   return { start, end };
 });
 
-const formatId = (id: number) => `#${String(id).padStart(3, '0')}`;
-const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('es-ES');
-
 const tableColumns: Column[] = [
   { key: 'id', label: '# ID', slot: true },
   { key: 'name', label: 'Nombre de la Maestría', slot: true },
+  { key: 'subjectImage', label: 'Imagen Asunto', slot: true },
   { key: 'pdf', label: 'Archivo PDF', slot: true },
   { key: 'createdAt', label: 'Fecha de Registro', slot: true },
   { key: 'actions', label: 'Acciones', slot: true }
@@ -232,13 +273,32 @@ const tableData = computed(() => {
   }));
 });
 
+const downloadImage = async (id: number) => {
+  isLoading.value = true;
+  try {
+    const response = await apiClient.get(`/v1/degrees/${id}/image`, {
+      responseType: 'blob'
+    });
+    
+    const blob = new Blob([response.data], { type: 'image/png' });
+    const url = window.URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    
+    setTimeout(() => window.URL.revokeObjectURL(url), 100);
+  } catch (error) {
+    handleApiError(error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
 onMounted(fetchDegrees);
 </script>
 
 <template>
-  <div class="manager-container">
+  <div class="panel-container">
     <!-- Form Panel -->
-    <section class="glass-surface form-panel">
+    <section class="glass-surface glass-panel">
       <header class="panel-header">
         <div v-if="isEditMode" class="edit-badge">
           <span class="badge-icon">✏</span> Editando ID: {{ formatId(selectedDegree?.id || 0) }}
@@ -253,7 +313,7 @@ onMounted(fetchDegrees);
       </header>
 
       <div class="form-grid">
-        <div class="form-group">
+        <div class="form-group full-width">
           <label class="form-label">Nombre de la Maestría</label>
           <input 
             v-model="formData.name"
@@ -269,7 +329,11 @@ onMounted(fetchDegrees);
           <label class="form-label">Archivo PDF del Programa</label>
           <div 
             class="upload-zone"
-            :class="{ 'dragging': isDragging, 'has-file': formData.file || (isEditMode && selectedDegree?.pdfFileName) }"
+            :class="{ 
+              'dragging': isDragging, 
+              'has-file': formData.file || (isEditMode && selectedDegree?.pdfFileName),
+              'input-error': formError && !formData.file && (!isEditMode || !selectedDegree?.pdfFileName)
+            }"
             @dragover.prevent="isDragging = true"
             @dragleave.prevent="isDragging = false"
             @drop.prevent="onDrop"
@@ -285,22 +349,62 @@ onMounted(fetchDegrees);
             
             <div v-if="!formData.file && !(isEditMode && selectedDegree?.pdfFileName)" class="upload-placeholder">
               <div class="upload-icon">📤</div>
-              <p class="upload-text">Arrastre su archivo PDF aquí</p>
-              <p class="upload-subtext">o haga clic para seleccionar desde su equipo</p>
-              <span class="upload-badge">Máximo 10MB</span>
+              <p class="upload-text">Archivo PDF</p>
+              <p class="upload-subtext">Arrastre o haga clic</p>
+              <span class="upload-badge">PDF</span>
             </div>
 
             <div v-else class="file-info">
               <div class="file-icon">📄</div>
               <div class="file-details">
                 <p class="file-name">{{ formData.file ? formData.file.name : selectedDegree?.pdfFileName }}</p>
-                <p v-if="isEditMode && !formData.file" class="file-status">Archivo cargado correctamente</p>
               </div>
               <button class="remove-file" @click.stop="formData.file = null">×</button>
             </div>
           </div>
+          <p v-if="formError && !formData.file && (!isEditMode || !selectedDegree?.pdfFileName)" class="error-text">
+            {{ formError }}
+          </p>
           <button v-if="isEditMode && selectedDegree?.pdfFileName && !formData.file" class="replace-btn" @click="fileInput?.click()">
-            Reemplazar Archivo
+            Reemplazar PDF
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Imagen del Asunto</label>
+          <div 
+            class="upload-zone"
+            :class="{ 'dragging': isDraggingImage, 'has-file': formData.subjectImage || (isEditMode && selectedDegree?.subjectImageName) }"
+            @dragover.prevent="isDraggingImage = true"
+            @dragleave.prevent="isDraggingImage = false"
+            @drop.prevent="onDropImage"
+            @click="imageInput?.click()"
+          >
+            <input 
+              ref="imageInput"
+              type="file" 
+              accept="image/*" 
+              hidden 
+              @change="handleImageSelect"
+            />
+            
+            <div v-if="!formData.subjectImage && !(isEditMode && selectedDegree?.subjectImageName)" class="upload-placeholder">
+              <div class="upload-icon">🖼️</div>
+              <p class="upload-text">Imagen Asunto</p>
+              <p class="upload-subtext">Arrastre o haga clic</p>
+              <span class="upload-badge">PNG/JPG</span>
+            </div>
+
+            <div v-else class="file-info">
+              <div class="file-icon">🖼️</div>
+              <div class="file-details">
+                <p class="file-name">{{ formData.subjectImage ? formData.subjectImage.name : selectedDegree?.subjectImageName }}</p>
+              </div>
+              <button class="remove-file" @click.stop="formData.subjectImage = null">×</button>
+            </div>
+          </div>
+          <button v-if="isEditMode && selectedDegree?.subjectImageName && !formData.subjectImage" class="replace-btn" @click="imageInput?.click()">
+            Reemplazar Imagen
           </button>
         </div>
       </div>
@@ -342,6 +446,24 @@ onMounted(fetchDegrees);
         <div class="name-container" :title="row.name">
           <span class="degree-name">{{ row.name }}</span>
           <div v-if="selectedDegree?.id === row.id" class="editing-label">ACTUALMENTE EDITANDO</div>
+        </div>
+      </template>
+
+      <template #cell-subjectImage="{ row }">
+        <div 
+          class="image-status-cell" 
+          :class="{ 'has-image': row.subjectImagePath }"
+          @click="row.subjectImagePath ? downloadImage(row.id) : null"
+          :title="row.subjectImagePath ? 'Ver imagen' : 'Sin imagen'"
+        >
+          <div v-if="row.subjectImagePath" class="status-icon-wrapper">
+            <span class="status-icon">🖼️</span>
+            <span class="status-badge-small">Existe</span>
+          </div>
+          <div v-else class="status-icon-wrapper disabled">
+            <span class="status-icon">🚫</span>
+            <span class="status-badge-small">Falta</span>
+          </div>
         </div>
       </template>
 
@@ -395,22 +517,7 @@ onMounted(fetchDegrees);
 </template>
 
 <style scoped>
-.manager-container {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  position: relative;
-}
-
-/* Form Panel */
-.form-panel {
-  padding: 32px;
-}
-
-.panel-header {
-  margin-bottom: 24px;
-}
-
+/* Estilos específicos del formulario de maestrías */
 .edit-badge {
   display: inline-flex;
   align-items: center;
@@ -424,18 +531,6 @@ onMounted(fetchDegrees);
   margin-bottom: 12px;
 }
 
-.panel-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--color-text);
-  margin-bottom: 8px;
-}
-
-.panel-subtitle {
-  color: var(--color-text-muted);
-  font-size: 14px;
-}
-
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -443,30 +538,8 @@ onMounted(fetchDegrees);
   margin-bottom: 24px;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.form-label {
-  font-weight: 600;
-  font-size: 13px;
-}
-
-.form-input {
-  padding: 12px 16px;
-  border-radius: var(--radius-input);
-  border: 1px solid var(--color-border);
-  background: rgba(255, 255, 255, 0.5);
-  font-family: inherit;
-  transition: var(--transition-base);
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-active-surface);
+.full-width {
+  grid-column: span 2;
 }
 
 .input-error {
@@ -483,11 +556,16 @@ onMounted(fetchDegrees);
 .upload-zone {
   border: 2px dashed var(--color-border);
   border-radius: var(--radius-input);
-  padding: 32px;
+  padding: 24px 16px;
   text-align: center;
   cursor: pointer;
   transition: var(--transition-base);
   background: rgba(255, 255, 255, 0.3);
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .upload-zone.dragging {
@@ -496,26 +574,27 @@ onMounted(fetchDegrees);
 }
 
 .upload-icon {
-  font-size: 32px;
-  margin-bottom: 12px;
+  font-size: 28px;
+  margin-bottom: 8px;
 }
 
 .upload-text {
   font-weight: 600;
   margin-bottom: 4px;
+  font-size: 14px;
 }
 
 .upload-subtext {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--color-text-muted);
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .upload-badge {
   background: var(--color-divider);
-  padding: 4px 10px;
+  padding: 2px 8px;
   border-radius: var(--radius-pill);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
 }
 
@@ -524,6 +603,7 @@ onMounted(fetchDegrees);
   align-items: center;
   gap: 12px;
   text-align: left;
+  width: 100%;
 }
 
 .file-icon {
@@ -532,10 +612,11 @@ onMounted(fetchDegrees);
 
 .file-name {
   font-weight: 600;
-  max-width: 200px;
+  max-width: 150px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-size: 13px;
 }
 
 .file-status {
@@ -553,60 +634,64 @@ onMounted(fetchDegrees);
 }
 
 .replace-btn {
-  align-self: flex-end;
+  align-self: center;
   background: none;
   border: 1px solid var(--color-border);
-  padding: 8px 16px;
+  padding: 6px 12px;
   border-radius: var(--radius-button);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   cursor: pointer;
   margin-top: 8px;
 }
 
-/* Buttons */
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
-.btn-primary {
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: var(--radius-button);
-  font-weight: 600;
+/* Custom Table Cells */
+.image-status-cell {
   display: flex;
   align-items: center;
-  gap: 8px;
-  cursor: pointer;
+  justify-content: center;
+  width: 80px;
+  padding: 4px;
+  border-radius: 8px;
   transition: var(--transition-base);
 }
 
-.btn-primary:hover:not(:disabled) {
-  background: var(--color-primary-hover);
-  transform: translateY(-1px);
-}
-
-.btn-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  background: none;
-  border: 1px solid var(--color-border);
-  padding: 12px 24px;
-  border-radius: var(--radius-button);
-  font-weight: 600;
+.image-status-cell.has-image {
   cursor: pointer;
 }
 
-/* Custom Table Cells */
-.id-cell {
+.image-status-cell.has-image:hover {
+  background: var(--color-active-surface);
+}
+
+.status-icon-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.status-icon-wrapper.disabled {
+  opacity: 0.5;
+}
+
+.status-icon {
+  font-size: 18px;
+}
+
+.status-badge-small {
+  font-size: 10px;
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.has-image .status-badge-small {
+  color: #52c41a;
+}
+
+.disabled .status-badge-small {
+  color: var(--color-text-muted);
 }
 
 .degree-name {
@@ -643,126 +728,6 @@ onMounted(fetchDegrees);
 .pdf-link-btn:hover {
   opacity: 0.8;
   text-decoration: underline;
-}
-
-.actions-cell {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-}
-
-.action-btn {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  border: 1px solid var(--color-border);
-  background: white;
-  cursor: pointer;
-  transition: var(--transition-base);
-}
-
-.action-btn.edit:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-}
-
-.action-btn.delete:hover {
-  border-color: #ff4d4f;
-  color: #ff4d4f;
-}
-
-/* Modal */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-}
-
-.modal-content {
-  width: 100%;
-  max-width: 420px;
-  padding: 32px;
-  text-align: center;
-}
-
-.warning-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
-}
-
-.modal-title {
-  font-size: 20px;
-  font-weight: 700;
-  margin-bottom: 12px;
-}
-
-.modal-body {
-  color: var(--color-text-muted);
-  line-height: 1.5;
-  margin-bottom: 24px;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 12px;
-}
-
-.btn-ghost {
-  flex: 1;
-  background: none;
-  border: none;
-  padding: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn-danger {
-  flex: 2;
-  background: #dc2626;
-  color: white;
-  border: none;
-  padding: 12px;
-  border-radius: var(--radius-button);
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn-danger:hover {
-  background: #b91c1c;
-}
-
-/* Loading Overlay */
-.loading-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(2px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-  border-radius: var(--radius-card);
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid var(--color-active-surface);
-  border-top-color: var(--color-primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
 
 .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }

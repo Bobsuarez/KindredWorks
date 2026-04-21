@@ -30,7 +30,7 @@ public class EmailChannel implements NotificationChannelStrategy {
     public DeliveryResult send(ContactEntity contactEntity, MasterProgramEntity program) {
         try {
 
-            File image = fileStorageService.resolveFile(program.getSubjectImagePath());
+            File image = resolveOptionalFile(program.getSubjectImagePath());
             File pdf = fileStorageService.resolveFile(program.getPdfCurriculumPath());
 
             emailService.sendPromotionalEmail(
@@ -46,6 +46,18 @@ public class EmailChannel implements NotificationChannelStrategy {
         } catch (Exception ex) {
             log.error("Email failed for contact id={}: {}", contactEntity.getId(), ex.getMessage());
             return DeliveryResult.failure(ChannelType.EMAIL, ex);
+        }
+    }
+
+    private File resolveOptionalFile(String path) {
+        if (path == null || path.isBlank() || "PENDING".equalsIgnoreCase(path)) {
+            return null;
+        }
+        try {
+            return fileStorageService.resolveFile(path);
+        } catch (Exception ex) {
+            log.warn("No se pudo cargar imagen opcional '{}': {}", path, ex.getMessage());
+            return null;
         }
     }
 }

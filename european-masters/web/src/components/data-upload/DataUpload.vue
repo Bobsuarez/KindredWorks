@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue';
 import apiClient from '../../services/apiClient';
+import { formatDate } from '../../utils/formatters';
 import DataTable from '../common/DataTable.vue';
 import type { Column } from '../common/DataTable.vue';
 
@@ -30,10 +31,10 @@ const searchQuery = ref('');
 const isTableLoading = ref(false);
 
 const tableColumns: Column[] = [
-  { key: 'id', label: '# ID', slot: true },
+  { key: 'createdAt', label: 'Fecha de Carga', slot: true },
   { key: 'fileName', label: 'Nombre de Archivo', slot: true },
   { key: 'status', label: 'Estado', slot: true },
-  { key: 'createdAt', label: 'Fecha de Carga', slot: true }
+  { key: 'id', label: '# ID System', slot: true },
 ];
 
 const fetchImports = async () => {
@@ -43,7 +44,9 @@ const fetchImports = async () => {
       params: {
         page: currentPage.value - 1,
         size: pageSize.value,
-        search: searchQuery.value
+        search: searchQuery.value,
+        direction: 'desc',
+        sort: 'createdAt'
       }
     });
     imports.value = response.data.content || [];
@@ -120,11 +123,6 @@ const formatFileSize = (bytes: number): string => {
   return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
 };
 
-const formatDate = (dateStr: string) => {
-  if (!dateStr) return '';
-  return new Date(dateStr).toLocaleDateString('es-ES');
-};
-
 const uploadFile = async () => {
   if (!selectedFile.value) return;
 
@@ -157,14 +155,14 @@ const uploadFile = async () => {
 </script>
 
 <template>
-  <div class="data-upload-container">
+  <div class="panel-container">
     <div class="page-header">
-      <h1 class="title">Carga de Datos</h1>
-      <p class="subtitle">Sube tu archivo para procesarlo en el sistema.</p>
+      <h1 class="page-title">Carga de Datos</h1>
+      <p class="page-subtitle">Sube tu archivo para procesarlo en el sistema.</p>
     </div>
 
     <!-- Upload Form -->
-    <div class="upload-section glass-surface">
+    <div class="upload-section glass-surface glass-panel">
       <div
         :class="['upload-area', { dragging: isDragging }]"
         @dragenter="handleDragEnter"
@@ -262,68 +260,10 @@ const uploadFile = async () => {
 </template>
 
 <style scoped>
-.data-upload-container {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.page-header {
-  margin-bottom: 32px;
-}
-
-.title {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--color-text);
-  margin: 0 0 8px 0;
-}
-
-.subtitle {
-  font-size: 14px;
-  color: var(--color-text-muted);
-  margin: 0;
-}
-
-.upload-section {
-  padding: 32px;
-  margin-bottom: 32px;
-}
-
-.table-section-wrapper {
-  margin-top: 32px;
-}
-
-.id-cell {
-  font-weight: 700;
-}
-
+/* Estilos específicos de carga de archivos */
 .file-name-cell {
   font-weight: 600;
   color: var(--color-primary);
-}
-
-.status-badge {
-  padding: 4px 10px;
-  border-radius: var(--radius-pill);
-  font-size: 12px;
-  font-weight: 600;
-  background: var(--color-divider);
-  color: var(--color-text);
-}
-
-.status-badge.success {
-  background: rgba(52, 211, 153, 0.2);
-  color: #059669;
-}
-
-.status-badge.error {
-  background: rgba(239, 68, 68, 0.2);
-  color: #dc2626;
-}
-
-.status-badge.pending {
-  background: rgba(245, 158, 11, 0.2);
-  color: #d97706;
 }
 
 .upload-area {
@@ -473,33 +413,5 @@ const uploadFile = async () => {
 .status-icon {
   font-weight: 700;
   font-size: 16px;
-}
-
-.loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.spinner {
-  width: 48px;
-  height: 48px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 </style>

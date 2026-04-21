@@ -15,7 +15,7 @@ public interface EmailService {
      * @param to            Recipient email address
      * @param recipientName Recipient display name (used for personalisation)
      * @param programName   Name of the master's degree program
-     * @param subjectImage  File pointing to the subject/banner image
+     * @param subjectImage  Optional file pointing to the subject/banner image
      * @param curriculumPdf File pointing to the PDF curriculum attachment
      */
     void sendPromotionalEmail(

@@ -21,6 +21,8 @@ services:
   em-redis:
     image: docker.io/library/redis:7-alpine
     container_name: em-redis
+    ports:
+      - "6379:6379"
     restart: unless-stopped
     networks:
       - kinForge-net
@@ -64,6 +66,7 @@ services:
       - uploads_data:/app/files/excel/
     depends_on:
       - em-db
+      - em-redis
     networks:
       - kinForge-net
 
@@ -97,8 +100,24 @@ services:
     build:
       context: ./web
       dockerfile: Dockerfile
+    container_name: em-web
     image: mi-astro-app:latest
     restart: unless-stopped
+    networks:
+      - kinForge-net
+
+  em-whatsapp-web:
+    build:
+      context: ./wwebjs-bot
+      dockerfile: Dockerfile
+    container_name: em-whatsapp-web
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./.wwebjs_auth:/app/.wwebjs_auth
+    restart: unless-stopped
+    security_opt:
+      - seccomp=unconfined
     networks:
       - kinForge-net
 

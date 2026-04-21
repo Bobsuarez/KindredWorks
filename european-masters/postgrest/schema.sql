@@ -54,6 +54,7 @@ CREATE TABLE contacts (
     name              VARCHAR(200)    NOT NULL,
     email             VARCHAR(320)    NOT NULL UNIQUE,
     phone_number      VARCHAR(30)     NOT NULL,
+    country           VARCHAR(50)     NOT NULL DEFAULT 'Desconocido',
     master_program_id BIGINT          NOT NULL,
     status            contact_status  NOT NULL DEFAULT 'PENDING'::contact_status,
     created_at        TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
@@ -115,3 +116,52 @@ CREATE TRIGGER trg_master_programs_updated_at
 CREATE TRIGGER trg_contacts_updated_at
     BEFORE UPDATE ON contacts
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+-- ------------------------------------------------------------
+-- Audit: deleted rows
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS audit_deleted_records (
+    id             BIGSERIAL    PRIMARY KEY,
+    table_name     TEXT         NOT NULL,
+    deleted_at     TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    deleted_by     TEXT         NOT NULL DEFAULT current_user,
+    deleted_row_id TEXT,
+    row_data       JSONB        NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_audit_deleted_records_table_name ON audit_deleted_records(table_name);
+CREATE INDEX IF NOT EXISTS idx_audit_deleted_records_deleted_at ON audit_deleted_records(deleted_at);
+
+CREATE OR REPLACE FUNCTION audit_delete()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO audit_deleted_records (table_name, deleted_row_id, row_data)
+    VALUES (
+        TG_TABLE_NAME,
+        OLD.id::TEXT,
+        to_jsonb(OLD)
+    );
+
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_master_programs_audit_delete ON master_programs;
+CREATE TRIGGER trg_master_programs_audit_delete
+    BEFORE DELETE ON master_programs
+    FOR EACH ROW EXECUTE FUNCTION audit_delete();
+
+DROP TRIGGER IF EXISTS trg_import_jobs_audit_delete ON import_jobs;
+CREATE TRIGGER trg_import_jobs_audit_delete
+    BEFORE DELETE ON import_jobs
+    FOR EACH ROW EXECUTE FUNCTION audit_delete();
+
+DROP TRIGGER IF EXISTS trg_contacts_audit_delete ON contacts;
+CREATE TRIGGER trg_contacts_audit_delete
+    BEFORE DELETE ON contacts
+    FOR EACH ROW EXECUTE FUNCTION audit_delete();
+
+DROP TRIGGER IF EXISTS trg_message_logs_audit_delete ON message_logs;
+CREATE TRIGGER trg_message_logs_audit_delete
+    BEFORE DELETE ON message_logs
+    FOR EACH ROW EXECUTE FUNCTION audit_delete();

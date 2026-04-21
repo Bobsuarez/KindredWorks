@@ -141,12 +141,18 @@ const goToPage = (p: number) => {
         </div>
       </div>
     </footer>
+
+    <!-- Loading Overlay -->
+    <div v-if="isLoading" class="loading-overlay">
+      <div class="spinner"></div>
+    </div>
   </section>
 </template>
 
 <style scoped>
 .table-section {
   padding: 24px;
+  position: relative;
 }
 
 .table-header {
@@ -221,11 +227,35 @@ const goToPage = (p: number) => {
 
 .table-container {
   overflow-x: auto;
+  margin: 0 -12px;
+  padding: 0 12px;
+  /* Estilo para la barra de desplazamiento */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-divider) transparent;
+}
+
+.table-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background-color: var(--color-divider);
+  border-radius: 10px;
 }
 
 .data-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: auto;
+}
+
+.data-table th,
+.data-table td {
+  white-space: nowrap;
 }
 
 .data-table th {
