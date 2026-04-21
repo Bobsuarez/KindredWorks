@@ -27,13 +27,14 @@ public class AppConfig {
      * A pool size of 1 guarantees that only one dispatch runs at a time,
      * enforcing the sequential processing requirement.
      */
-    @Bean
-    public ThreadPoolTaskScheduler taskScheduler() {
+    @Bean("messageScheduler")
+    public ThreadPoolTaskScheduler messageScheduler() {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
         scheduler.setPoolSize(1);
         scheduler.setThreadNamePrefix("msg-scheduler-");
         scheduler.setWaitForTasksToCompleteOnShutdown(true);
-        scheduler.setAwaitTerminationSeconds(30);
+        scheduler.setAwaitTerminationSeconds(60);
+        scheduler.initialize();
         return scheduler;
     }
 }
