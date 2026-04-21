@@ -1,7 +1,7 @@
 import axios, { type AxiosInstance } from 'axios';
 
 const apiClient: AxiosInstance = axios.create({
-  baseURL: /api,
+  baseURL: '/api',
   withCredentials: true,     // adjunta cookies automáticamente en cada request
   headers: {
     'Content-Type': 'application/json',
