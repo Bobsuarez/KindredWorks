@@ -39,8 +39,8 @@ jobs:
             
             # Forzamos la reconstrucción si cambiaste el código Java
             # y levantamos en segundo plano (-d)
-            podman-compose down
-            podman-compose up --build -d
+            podman-compose build --no-cache
+            podman-compose up -d em-db em-redis em-backend em-web
             
             # Limpieza de imágenes huérfanas para ahorrar espacio en Contabo
             podman image prune -f
