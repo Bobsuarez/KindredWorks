@@ -42,7 +42,7 @@ jobs:
             # Forzamos la reconstrucción si cambiaste el código Java
             # y levantamos en segundo plano (-d)
             podman-compose build --no-cache
-            podman-compose up -d em-db em-redis em-backend em-web
+            podman-compose up -d em-db em-redis em-backend em-web em-whatsapp-web
             podman-compose up --no-start em-worker
             
             # Limpieza de imágenes huérfanas para ahorrar espacio en Contabo
