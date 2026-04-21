@@ -16,13 +16,7 @@ jobs:
     steps:
       - name: Checkout del código
         uses: actions/checkout@v4
-
-      - name: Clean cache
-        run: |
-          rm -rf node_modules
-          rm -rf .next
-          npm ci
-    
+ 
       - name: Debug
         run: echo "MAIL_HOST=${{ vars.MAIL_HOST }}"
 
