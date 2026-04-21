@@ -36,6 +36,8 @@ jobs:
             export MAIL_PORT_VARIABLE_GIT=${{ vars.MAIL_PORT }}
             export MAIL_USER_SECRET_GIT=${{ secrets.MAIL_USER }}
             export MAIL_PASS_SECRET_GIT=${{ secrets.MAIL_PASS }}
+            export PODMAN_HOST_SOCKET_GIT=${{ secrets.PODMAN_HOST_SOCKET }}
+            export PODMAN_CONTAINER_SOCKET_GIT=${{ secrets.PODMAN_CONTAINER_SOCKET }}
             
             # Forzamos la reconstrucción si cambiaste el código Java
             # y levantamos en segundo plano (-d)
