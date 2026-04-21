@@ -44,3 +44,5 @@ jobs:
             
             # Limpieza de imágenes huérfanas para ahorrar espacio en Contabo
             podman image prune -f
+
+            podman restart nginx-proxy
