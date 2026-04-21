@@ -63,7 +63,7 @@ public class ImportJobService {
 
         // 4. Publicar a Redis para que Python lo consuma
         redisPublisher.publisherJob(job.getId(), filename);
-        workerLauncherServices.iniciarWorker();   // ← levanta el worker si no está corriendo
+        workerLauncherServices.invoke();   // ← levanta el worker si no está corriendo
 
 
         return job;

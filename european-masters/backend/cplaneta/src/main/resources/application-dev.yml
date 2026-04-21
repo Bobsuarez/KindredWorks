@@ -62,7 +62,7 @@ app:
     window-end-hour: 19
     daily-limit: 300
   upload-dir: ${UPLOAD_DIR:/app/files/excel/}
-  podman-api-host: ${PODMAN_API_URL:http://localhost/v4.0.0/libpod}
+  podman-api-host: ${PODMAN_API_URL:/run/user/1000/podman/podman.sock}
 
   file-storage:
     # NOTE: Don't point this to src/main/resources in production; packaged apps

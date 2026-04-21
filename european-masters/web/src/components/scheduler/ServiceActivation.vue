@@ -136,9 +136,7 @@ const reset = () => {
       
       <div class="circle-wrapper">
         <div class="success-ring">
-          <div class="badge-stable">Estable</div>
           <div class="success-content">
-            <div class="check-icon">✓</div>
             <span class="success-title">ACTIVO</span>
             <span class="success-subtitle">EN SERVICIO</span>
           </div>
@@ -471,38 +469,10 @@ const reset = () => {
   border-radius: 50%;
 }
 
-.badge-stable {
-  position: absolute;
-  top: 10px;
-  right: -30px;
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  padding: 6px 16px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
-
 .success-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.check-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  border: 3px solid #10b981;
-  color: #10b981;
-  font-size: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 16px;
-  font-weight: bold;
 }
 
 .success-title {
