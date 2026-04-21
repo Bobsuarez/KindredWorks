@@ -53,14 +53,15 @@ services:
       - EMAIL_FROM=${EMAIL_FROM_VARIABLE_GIT:-andres.asesorias@kinforgeworks.com}
 
       # variabke para el socket
-      # - PODMAN_API_URL=${PODMAN_API_URL_VARIABLE_GIT:-unix:///var/run/podman/podman.sock}
-      - PODMAN_API_URL=${PODMAN_API_URL_VARIABLE_GIT:-http://host.containers.internal:8888/v4.0.0/libpod}
+      - PODMAN_API_URL=${PODMAN_API_URL_VARIABLE_GIT:-/run/user/1000/podman/podman.sock}
+#      - PODMAN_API_URL=${PODMAN_API_URL_VARIABLE_GIT:-http://host.containers.internal:8888/v4.0.0/libpod}
 
       # Nuevas variables
       - UPLOAD_DIR=/app/files/excel/
       - REDIS_HOST=em-redis
       - REDIS_PORT=6379
     volumes:
+      - /run/user/1000/podman/podman.sock:/run/user/1000/podman/podman.sock
       - uploads_data:/app/files/excel/
     depends_on:
       - em-db
