@@ -10,11 +10,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URLConnection;
 import java.util.Optional;
 
 @Service
@@ -48,6 +50,22 @@ public class MasterProgramService {
         }
 
         return fileStorageService.readFileBytes(path);
+    }
+
+    @Transactional(readOnly = true)
+    public byte[] getSubjectImage(Long id) throws IOException {
+        String path = getSubjectImagePathOrThrow(id);
+        return fileStorageService.readFileBytes(path);
+    }
+
+    @Transactional(readOnly = true)
+    public MediaType getSubjectImageMediaType(Long id) {
+        String path = getSubjectImagePathOrThrow(id);
+        String detected = URLConnection.guessContentTypeFromName(path);
+        if (detected == null) {
+            return MediaType.APPLICATION_OCTET_STREAM;
+        }
+        return MediaType.parseMediaType(detected);
     }
 
     /**
@@ -96,15 +114,19 @@ public class MasterProgramService {
 
         if (curriculum != null && !curriculum.isEmpty()) {
             String oldPath = program.getPdfCurriculumPath();
+            log.info("Old curriculum path: {}", oldPath);
             fileStorageService.deleteRecursively(oldPath);
             String pdfPath = fileStorageService.storeCurriculum(curriculum, program.getName());
+            log.info("New curriculum path: {}", pdfPath);
             program.setPdfCurriculumPath(pdfPath);
         }
 
         if (subjectImage != null && !subjectImage.isEmpty()) {
             String oldPath = program.getSubjectImagePath();
+            log.info("Old subject image path: {}", oldPath);
             fileStorageService.deleteRecursively(oldPath);
             String imagePath = fileStorageService.storeSubjectImage(subjectImage, program.getName());
+            log.info("New subject image path: {}", imagePath);
             program.setSubjectImagePath(imagePath);
         }
 
@@ -135,5 +157,14 @@ public class MasterProgramService {
     MasterProgramEntity getProgramOrThrow(Long id) {
         return masterProgramRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("MasterProgram not found: " + id));
+    }
+
+    private String getSubjectImagePathOrThrow(Long id) {
+        MasterProgramEntity program = getProgramOrThrow(id);
+        String path = program.getSubjectImagePath();
+        if (path == null || path.equals("PENDING") || path.isEmpty()) {
+            throw new ResourceNotFoundException("Image path not set for program: " + id);
+        }
+        return path;
     }
 }

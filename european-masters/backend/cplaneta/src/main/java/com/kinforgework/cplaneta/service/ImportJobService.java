@@ -28,8 +28,7 @@ public class ImportJobService {
     private final RedisPublisherUtil redisPublisher;
     private final WorkerLauncherServices workerLauncherServices;
 
-    @Value("${app.upload-dir}")
-    private String uploadDir;
+    private String uploadDir = "./files/excel";
 
     public ImportJobEntity crearJob(MultipartFile archivo) throws IOException {
 

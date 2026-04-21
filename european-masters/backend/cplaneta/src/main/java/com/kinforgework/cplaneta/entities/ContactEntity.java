@@ -57,6 +57,9 @@ public class ContactEntity {
     @Column(name = "phone_number", nullable = false, length = 30)
     private String phoneNumber;
 
+    @Column(name = "country", nullable = false, length = 50)
+    private String country;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "master_program_id", nullable = false)
     private MasterProgramEntity masterProgram;

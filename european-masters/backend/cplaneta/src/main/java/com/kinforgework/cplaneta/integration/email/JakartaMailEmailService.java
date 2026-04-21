@@ -1,5 +1,6 @@
 package com.kinforgework.cplaneta.integration.email;
 
+import com.kinforgework.cplaneta.integration.email.template.EmailTemplateCatalog;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import java.io.File;
 public class JakartaMailEmailService implements EmailService {
 
     private final JavaMailSender mailSender;
+    private final EmailTemplateCatalog emailTemplateCatalog;
 
     @Value("${app.email.from-address}")
     private String fromAddress;
@@ -47,16 +49,22 @@ public class JakartaMailEmailService implements EmailService {
             helper.setSubject("Programa de Maestría: " + programName);
 
             // Versión texto plano + HTML para mejorar entregabilidad
-            String textBody = buildTextBody(recipientName, programName);
-            String htmlBody = buildHtmlBody(recipientName, programName);
+            int templateIndex = emailTemplateCatalog.randomIndex();
+            String textBody = buildTextBody(recipientName, programName, templateIndex);
+
+            boolean includeSubjectImage = subjectImage != null && subjectImage.exists() && subjectImage.isFile();
+
+            String htmlBody = buildHtmlBody(recipientName, programName, templateIndex, includeSubjectImage);
             helper.setText(textBody, htmlBody);
 
             // 2) Portada como imagen inline
             helper.addInline("portadaImage", new ClassPathResource("img/portada.png"));
 
-            // Inline subject image (referenced in HTML via Content-ID)
-            FileSystemResource imageResource = new FileSystemResource(subjectImage);
-            helper.addInline("subjectImage", imageResource);
+            // Inline subject image (referenced in HTML via Content-ID), optional
+            if (includeSubjectImage) {
+                FileSystemResource imageResource = new FileSystemResource(subjectImage);
+                helper.addInline("subjectImage", imageResource);
+            }
 
             // 4) Botón de WhatsApp (también desde resources: img/whatsapp.png)
             helper.addInline("whatsappButton", new ClassPathResource("img/whatsapp.png"));
@@ -78,22 +86,24 @@ public class JakartaMailEmailService implements EmailService {
     // -------------------------------------------------------------------------
     // Private helpers
     // -------------------------------------------------------------------------
-    private String buildTextBody(String recipientName, String programName) {
-        return """
-                Hola %s,
-                
-                Le invitamos a conocer más sobre nuestro programa de posgrado: %s.
-                
-                Adjuntamos la malla curricular completa del programa en formato PDF.
-                También puede contactarnos directamente por WhatsApp para resolver cualquier duda
-                o recibir asesoría sobre el proceso de admisión.
-                
-                Atentamente,
-                Oficina de Posgrados
-                """.formatted(recipientName, programName);
+    private String buildTextBody(String recipientName, String programName, int templateIndex) {
+        return emailTemplateCatalog.buildTextBody(recipientName, programName, templateIndex);
     }
 
-    private String buildHtmlBody(String recipientName, String programName) {
+    private String buildHtmlBody(
+            String recipientName, String programName, int templateIndex, boolean includeSubjectImage) {
+        String dynamicBody = emailTemplateCatalog.buildDecoratedBody(recipientName, programName, templateIndex);
+        String subjectImageBlock = includeSubjectImage
+                ? """
+                          <!-- Imagen del programa (subjectImage) -->
+                          <tr>
+                            <td align="center" style="padding:0 24px 24px 24px;">
+                              <img src="cid:subjectImage" alt="Imagen del programa" style="display:block; max-width:600px; width:100%%; border:0;"/>
+                            </td>
+                          </tr>
+                """
+                : "";
+
         return """
                 <html>
                 <body style="margin:0; padding:0; background-color:#f5f5f5;">
@@ -111,52 +121,17 @@ public class JakartaMailEmailService implements EmailService {
                           <!-- Cuerpo de texto principal -->
                           <tr>
                             <td style="padding:24px;">
-                              <p style="margin:0 0 12px 0; font-size:14px; line-height:1.6;">
-                                Hola <strong>%s</strong>,
-                              </p>
-                              <p style="margin:0 0 12px 0; font-size:14px; line-height:1.6;">
-                                Gracias por su interés en nuestros programas de posgrado. Queremos compartir con usted
-                                información detallada sobre el programa:
-                              </p>
-                              <h2 style="margin:0 0 16px 0; color:#1a3c6e; font-size:22px; line-height:1.4;">
-                                %s
-                              </h2>
-                              <p style="margin:0 0 12px 0; font-size:14px; line-height:1.6;">
-                                Este programa está diseñado para profesionales que desean fortalecer sus competencias,
-                                actualizarse en las últimas tendencias de su área y acceder a mejores oportunidades
-                                laborales, tanto a nivel nacional como internacional.
-                              </p>
-                              <p style="margin:0 0 12px 0; font-size:14px; line-height:1.6;">
-                                En la malla curricular adjunta encontrará el detalle de los módulos, las asignaturas
-                                principales y la duración estimada del programa, así como los enfoques metodológicos
-                                y los resultados de aprendizaje esperados.
-                              </p>
-                              <p style="margin:0 0 12px 0; font-size:14px; line-height:1.6;">
-                                Algunos de los beneficios de este programa son:
-                              </p>
                               <ul style="margin:0 0 16px 20px; padding:0; font-size:14px; line-height:1.6;">
                                 <li>Docentes con amplia experiencia académica y profesional.</li>
                                 <li>Enfoque práctico orientado a la solución de problemas reales.</li>
                                 <li>Red de contactos con otros profesionales y organizaciones.</li>
                                 <li>Acceso a recursos académicos y acompañamiento permanente.</li>
                               </ul>
-                              <p style="margin:0 0 12px 0; font-size:14px; line-height:1.6;">
-                                Si desea recibir una asesoría personalizada sobre requisitos, proceso de admisión,
-                                descuentos o facilidades de pago, puede responder a este correo o contactarnos por
-                                WhatsApp utilizando el botón que encontrará más abajo.
-                              </p>
-                              <p style="margin:0 0 0 0; font-size:14px; line-height:1.6;">
-                                Será un gusto acompañarle en su proceso de formación de posgrado.
-                              </p>
+                              %s
                             </td>
                           </tr>
                 
-                          <!-- Imagen del programa (subjectImage) -->
-                          <tr>
-                            <td align="center" style="padding:0 24px 24px 24px;">
-                              <img src="cid:subjectImage" alt="Imagen del programa" style="display:block; max-width:600px; width:100%%; border:0;"/>
-                            </td>
-                          </tr>
+                          %s
                 
                           <!-- Botón de WhatsApp como imagen clicable -->
                           <tr>
@@ -185,7 +160,7 @@ public class JakartaMailEmailService implements EmailService {
                   </table>
                 </body>
                 </html>
-                """.formatted(recipientName, programName);
+                """.formatted(dynamicBody, subjectImageBlock);
     }
 
     private String sanitizeFileName(String name) {

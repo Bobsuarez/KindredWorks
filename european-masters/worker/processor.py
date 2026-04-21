@@ -7,7 +7,7 @@ from db import (
     actualizar_progreso,
     actualizar_total_rows
 )
-from normalizer import normalizar_telefono, normalizar_correo, normalizar_nombre
+from normalizer import normalizar_telefono_y_pais, normalizar_correo, normalizar_nombre
 
 CHUNK_SIZE = 10_000
 
@@ -97,7 +97,13 @@ def procesar_archivo(job_id: str, filename: str):
 
             # Normalizar
             chunk["nombre"]   = chunk["nombre"].apply(normalizar_nombre)
-            chunk["telefono"] = chunk["telefono"].apply(normalizar_telefono) if "telefono" in chunk.columns else None
+            if "telefono" in chunk.columns:
+                telefono_pais = chunk["telefono"].apply(normalizar_telefono_y_pais)
+                chunk["telefono"] = telefono_pais.apply(lambda x: x[0])
+                chunk["pais"] = telefono_pais.apply(lambda x: x[1])
+            else:
+                chunk["telefono"] = None
+                chunk["pais"] = "Desconocido"
             chunk["correo"]   = chunk["correo"].apply(normalizar_correo)
             chunk["programa"] = chunk.get("programa", pd.Series(["Sin programa"] * len(chunk))).fillna("Sin programa")
 
@@ -109,6 +115,7 @@ def procesar_archivo(job_id: str, filename: str):
                     contactos.append((
                         row["nombre"],
                         row.get("telefono"),
+                        row.get("pais", "Desconocido"),
                         row["correo"],
                         pid
                     ))

@@ -46,3 +46,9 @@ application-*.properties
 .cursor
 **/node_modules/
 **/dist/
+
+### wwebjs-bot ###
+**/.wwebjs_auth/
+
+**/backend/cplaneta/files/
+**/backend/cplaneta/uploads/

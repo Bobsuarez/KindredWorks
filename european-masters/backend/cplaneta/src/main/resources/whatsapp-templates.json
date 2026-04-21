@@ -1,0 +1,43 @@
+{
+  "templates": [
+    "Hola {name}, soy Andres Bustos, asesor comercial de Grupo Planeta. Te contacto porque mostraste interés en el programa {program}. Te envié un correo con información y beneficios disponibles este mes.",
+
+    "Hola {name}, te saluda Andres Bustos de Grupo Planeta. Vi que te interesó el programa {program}, por eso te compartí un correo con detalles y algunas opciones con descuento.",
+
+    "Hola {name}, soy Andres Bustos de Grupo Planeta. Te escribo por tu interés en el programa {program}. Hace un momento te envié un correo con información y beneficios vigentes.",
+
+    "Hola {name}, habla Andres Bustos, asesor de Grupo Planeta. Noté que consultaste el programa {program}, así que te envié un correo con detalles y oportunidades disponibles este mes.",
+
+    "Hola {name}, soy Andres Bustos de Grupo Planeta. Gracias por tu interés en el programa {program}. Te dejé en tu correo información clave junto con algunos beneficios activos.",
+
+    "Hola {name}, te escribe Andres Bustos de Grupo Planeta. Vimos tu interés en el programa {program} y te envié un correo con información relevante y condiciones especiales.",
+
+    "Hola {name}, soy Andres Bustos, asesor de Grupo Planeta. Me comunico contigo por el programa {program}. Te compartí un correo con detalles y beneficios que podrían interesarte.",
+
+    "Hola {name}, ¿cómo estás? Soy Andres Bustos de Grupo Planeta. Te contacto por el programa {program}. Acabo de enviarte un correo con información y algunas ventajas disponibles actualmente.",
+
+    "Hola {name}, soy Andres Bustos de Grupo Planeta. Te escribo para darte seguimiento a tu interés en el programa {program}. Te envié un correo con información y beneficios del mes.",
+
+    "Hola {name}, te habla Andres Bustos de Grupo Planeta. Vi tu interés en el programa {program} y te envié un correo con detalles y opciones disponibles.",
+
+    "Hola {name}, soy Andres Bustos, asesor comercial de Grupo Planeta. Te contacto por el programa {program}. Hace poco te envié un correo con información y beneficios vigentes.",
+
+    "Hola {name}, Andres Bustos de Grupo Planeta. Te escribo porque mostraste interés en el programa {program}. Te compartí un correo con información y algunas alternativas con descuento.",
+
+    "Hola {name}, soy Andres Bustos de Grupo Planeta. Recibimos tu interés en el programa {program} y por eso te envié un correo con detalles y beneficios actuales.",
+
+    "Hola {name}, te saluda Andres Bustos, asesor de Grupo Planeta. Te escribo por el programa {program}. Te envié un correo con información relevante y opciones disponibles este mes.",
+
+    "Hola {name}, soy Andres Bustos de Grupo Planeta. Estoy dando seguimiento a tu interés en el programa {program}. Te dejé un correo con detalles y beneficios que pueden interesarte.",
+
+    "Hola {name}, Andres Bustos por aquí, de Grupo Planeta. Te contacto por el programa {program}. Te envié un correo con información y condiciones especiales disponibles.",
+
+    "Hola {name}, soy Andres Bustos, asesor de Grupo Planeta. Te escribo en relación con el programa {program}. Hace un momento te compartí un correo con información y beneficios vigentes.",
+
+    "Hola {name}, te habla Andres Bustos de Grupo Planeta. Noté tu interés en el programa {program}. Te envié un correo con detalles y algunas oportunidades disponibles.",
+
+    "Hola {name}, soy Andres Bustos de Grupo Planeta. Te contacto para continuar con tu interés en el programa {program}. Te compartí un correo con información y beneficios del mes.",
+
+    "Hola {name}, Andres Bustos de Grupo Planeta. Te escribo por el programa {program}. Revisa tu correo, ya que te envié información y beneficios que podrían interesarte."
+  ]
+}

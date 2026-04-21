@@ -37,10 +37,8 @@ public class ImportJobController {
             @RequestParam(defaultValue = "asc") String direction
     ) {
         Sort sort = direction.equalsIgnoreCase(Sort.Direction.ASC.name())
-                ? Sort.by(sortBy)
-                  .ascending()
-                : Sort.by(sortBy)
-                  .descending();
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(page, size, sort);
         return ResponseEntity.ok(service.findAll(search, pageable));

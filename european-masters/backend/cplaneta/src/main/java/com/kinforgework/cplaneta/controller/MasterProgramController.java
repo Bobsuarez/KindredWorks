@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 @RestController
 @RequestMapping("/api/v1/degrees")
@@ -68,6 +69,20 @@ public class MasterProgramController {
     }
 
     /**
+     * Retrieves the subject image for a specific master program.
+     */
+    @GetMapping(value = "/{id}/image")
+    public ResponseEntity<byte[]> getImage(@PathVariable Long id) throws IOException {
+        byte[] image = masterProgramService.getSubjectImage(id);
+        MediaType mediaType = masterProgramService.getSubjectImageMediaType(id);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + getImageFilename(id, mediaType))
+                .contentType(mediaType)
+                .body(image);
+    }
+
+    /**
      * Multipart endpoint to create a new program.
      */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -102,5 +117,13 @@ public class MasterProgramController {
         masterProgramService.delete(id);
         return ResponseEntity.noContent()
                 .build();
+    }
+
+    private String getImageFilename(Long id, MediaType mediaType) {
+        String extension = "img";
+        if (mediaType.getSubtype() != null && !mediaType.getSubtype().isBlank()) {
+            extension = mediaType.getSubtype();
+        }
+        return "subject-" + id + "." + extension;
     }
 }

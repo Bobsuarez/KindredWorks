@@ -37,18 +37,15 @@ public class HttpWhatsAppService implements WhatsAppService {
         try {
             HttpHeaders headers = buildHeaders();
 
-            // Payload structure follows Meta Cloud API convention.
-            // Adapt to your provider's schema as needed.
+            // Ajustado para coincidir con los requerimientos de la API: numero y mensaje
             Map<String, Object> payload = Map.of(
-                    "messaging_product", "whatsapp",
-                    "to", phoneNumber,
-                    "type", "text",
-                    "text", Map.of("body", message)
+                    "numero", phoneNumber,
+                    "mensaje", message
             );
 
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
 
-            ResponseEntity<String> response = restTemplate.postForEntity(apiUrl + "/messages", request, String.class);
+            ResponseEntity<String> response = restTemplate.postForEntity(apiUrl + "/send-message", request, String.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 log.info("WhatsApp message sent successfully to '{}'", phoneNumber);
@@ -62,7 +59,7 @@ public class HttpWhatsAppService implements WhatsAppService {
             }
 
         } catch (Exception ex) {
-            log.error("Failed to send WhatsApp message to '{}': {}", phoneNumber, ex.getMessage(), ex);
+            log.error("Failed to send WhatsApp message to '{}': {}", phoneNumber, ex.getMessage());
             throw new RuntimeException("WhatsApp delivery failed for: " + phoneNumber, ex);
         }
     }
@@ -70,7 +67,7 @@ public class HttpWhatsAppService implements WhatsAppService {
     private HttpHeaders buildHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(apiKey);
+//        headers.setBearerAuth(apiKey);
         return headers;
     }
 }

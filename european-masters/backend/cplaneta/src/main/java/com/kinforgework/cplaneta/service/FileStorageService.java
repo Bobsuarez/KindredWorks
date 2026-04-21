@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.Optional;
 
 /**
  * Manages file storage for program assets (PDF curricula, subject images).
@@ -32,21 +33,36 @@ import java.util.Comparator;
 @Slf4j
 public class FileStorageService {
 
-    @Value("${app.file-storage.base-path:./uploads}")
-    private String basePath;
+    @Value("${app.file-storage.base-path.upload}")
+    private String basePathUploads;
 
-    private Path baseDir;
+    @Value("${app.file-storage.base-path.files-excel}")
+    private String basePathFilesExcel;
+
+    private Path baseDirUploads;
+    private Path baseDirFilesExcel;
 
     @PostConstruct
     void init() throws IOException {
-        this.baseDir = resolveBaseDir(basePath);
-        Files.createDirectories(baseDir);
-        if (!Files.isDirectory(baseDir) || !Files.isWritable(baseDir)) {
-            throw new IllegalStateException("File storage base directory is not writable: " + baseDir);
+        this.baseDirUploads = resolveBaseDir(basePathUploads);
+        this.baseDirFilesExcel = resolveBaseDir(basePathFilesExcel);
+        buildToCreateFiles(baseDirUploads);
+        buildToCreateFiles(baseDirFilesExcel);
+    }
+
+    private void buildToCreateFiles(Path baseDir) {
+        try {
+            Files.createDirectories(baseDir);
+            if (!Files.isDirectory(baseDir) || !Files.isWritable(baseDir)) {
+                throw new IllegalStateException("File storage base directory is not writable: " + baseDir);
+            }
+            log.info(
+                    "File storage base directory: '{}'", baseDir.toAbsolutePath()
+                            .normalize()
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        log.info("File storage base directory: '{}'", baseDir.toAbsolutePath()
-                        .normalize()
-        );
     }
 
     // -------------------------------------------------------------------------
@@ -97,22 +113,32 @@ public class FileStorageService {
     /**
      * Deletes the file if it exists.
      */
-    public void deleteRecursively(String storedPath) throws IOException {
-        Path path = Paths.get(storedPath);
+    public boolean deleteRecursively(String storedPath){
 
-        if (!Files.exists(path)) {
-            return;
+        return Optional.ofNullable(storedPath)
+                .map(Paths::get)
+                .filter(Files::exists)
+                .map(this::deleteDirectory)
+                .orElse(false);
+    }
+
+    private boolean deleteDirectory(Path path) {
+
+        try {
+            return Files.walk(path)
+                    .allMatch(p -> {
+                        try {
+                            Files.delete(p);
+                            return true;
+                        } catch (IOException e) {
+                            log.error("Failed to delete file: {}", p, e);
+                            return false;
+                        }
+                    });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
-        Files.walk(path)
-                .sorted(Comparator.reverseOrder())
-                .forEach(p -> {
-                    try {
-                        Files.delete(p);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
     }
 
     /**
@@ -141,7 +167,7 @@ public class FileStorageService {
 
         LocalDate today = LocalDate.now();
         Path dir = Paths.get(
-                baseDir.toString(),
+                baseDirUploads.toString(),
                 String.valueOf(today.getYear()),
                 String.format("%02d", today.getMonthValue()),
                 safeName

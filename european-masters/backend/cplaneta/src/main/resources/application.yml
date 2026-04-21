@@ -68,10 +68,12 @@ app:
     # NOTE: Don't point this to src/main/resources in production; packaged apps
     # run from a JAR/WAR where classpath resources are not writable.
     # For local dev you can set FILE_STORAGE_BASE_PATH=./src/main/resources/uploads
-    base-path: ${FILE_STORAGE_BASE_PATH:./uploads}
+    base-path:
+      upload: ${FILE_STORAGE_BASE_PATH_UPLOAD:./uploads}
+      files-excel: ${FILE_STORAGE_BASE_PATH_FILES_EXCEL:./files/excel}
 
   whatsapp:
-    api-url: ${WHATSAPP_API_URL:https://api.whatsapp-provider.com}
+    api-url: ${WHATSAPP_API_URL:http://em-whatsapp-web:3000}
     api-key: ${WHATSAPP_API_KEY:}
     from-number: ${WHATSAPP_FROM_NUMBER:}
 

@@ -1,5 +1,6 @@
 package com.kinforgework.cplaneta.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -36,5 +37,10 @@ public class AppConfig {
         scheduler.setAwaitTerminationSeconds(60);
         scheduler.initialize();
         return scheduler;
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
     }
 }
