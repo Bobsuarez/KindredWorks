@@ -20,6 +20,11 @@ const navItems = [
     icon: '🎓',
   },
   {
+    label: 'Activación de Servicio',
+    path: '/app/scheduler',
+    icon: '⚙️',
+  },
+  {
     label: 'Programación de Eventos',
     path: '/app/events',
     icon: '📅',

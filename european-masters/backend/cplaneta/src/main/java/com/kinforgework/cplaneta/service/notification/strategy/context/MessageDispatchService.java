@@ -73,10 +73,7 @@ public class MessageDispatchService {
 
         contactEntity.setStatus(success ? ContactStatus.SENT : ContactStatus.ERROR);
 
-        log.info(
-                "Dispatch complete for contact id={}. status={}",
-                contactEntity.getId(), success
-        );
+        log.info("Dispatch complete for contact id={}. status={}", contactEntity.getId(), success);
 
         contactRepository.save(contactEntity);
 

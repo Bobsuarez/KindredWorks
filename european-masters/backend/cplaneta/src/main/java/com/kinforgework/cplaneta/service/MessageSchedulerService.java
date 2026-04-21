@@ -2,25 +2,34 @@ package com.kinforgework.cplaneta.service;
 
 import com.kinforgework.cplaneta.service.notification.strategy.context.MessageDispatchService;
 import com.kinforgework.cplaneta.utils.HoursValidatorUtil;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.util.Random;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadLocalRandom;
 
-
-@RequiredArgsConstructor
 @Service
 @Slf4j
 public class MessageSchedulerService {
 
-    private static final Duration INTERVAL_MINUTES = Duration.ofMinutes(3);
+    private static final long INTERVAL_MINUTES = 5;
+    private final Random random = ThreadLocalRandom.current();
     private final TaskScheduler taskScheduler;
     private final MessageDispatchService messageDispatchService;
+
+    public MessageSchedulerService(
+            @Qualifier("messageScheduler") TaskScheduler taskScheduler,
+            MessageDispatchService messageDispatchService
+    ) {
+        this.taskScheduler = taskScheduler;
+        this.messageDispatchService = messageDispatchService;
+    }
 
     private volatile ScheduledFuture<?> currentTask;
     private volatile boolean running = false;
@@ -43,10 +52,11 @@ public class MessageSchedulerService {
             return;
         }
 
-        ZonedDateTime now = ZonedDateTime.now();
+        long delayMinutes = random.nextLong(1, INTERVAL_MINUTES + 1);
 
+        ZonedDateTime now = ZonedDateTime.now();
         ZonedDateTime slot = HoursValidatorUtil.isWithinBusinessHours(now)
-                ? now.plus(INTERVAL_MINUTES)
+                ? now.plusMinutes(delayMinutes)
                 : HoursValidatorUtil.nextValidSlot(now);
 
         Duration delay = Duration.between(now, slot);
@@ -54,8 +64,7 @@ public class MessageSchedulerService {
 
         currentTask = taskScheduler.schedule(
                 this::executeNext,
-                Instant.now()
-                        .plusMillis(delay.toMillis())
+                Instant.now().plusMillis(delay.toMillis())
         );
     }
 
