@@ -1,43 +1,43 @@
 {
   "templates": [
-    "Hola {name}, soy Andres Bustos, asesor comercial de Grupo Planeta. Te contacto porque mostraste interés en el programa {program}. Te envié un correo con información y beneficios disponibles este mes.",
+    "Hola {name}, te habla *Andres Bustos*, asesor comercial de *Grupo Planeta* 👋 Te escribo porque registramos tu interés en *{program}* y quería asegurarme de que recibieras el correo que te envié con los descuentos disponibles este mes. ¡Que tengas un excelente día!",
 
-    "Hola {name}, te saluda Andres Bustos de Grupo Planeta. Vi que te interesó el programa {program}, por eso te compartí un correo con detalles y algunas opciones con descuento.",
+    "Buen día {name}, soy *Andres Bustos* de *Grupo Planeta* ✨ Me comunico contigo porque mostraste interés en *{program}* y ya te hice llegar un correo con las condiciones y descuentos del mes. Espero que sea de mucha utilidad para ti.",
 
-    "Hola {name}, soy Andres Bustos de Grupo Planeta. Te escribo por tu interés en el programa {program}. Hace un momento te envié un correo con información y beneficios vigentes.",
+    "Hola {name}, espero que estés muy bien 😊 Te escribe *Andres Bustos*, asesor comercial de *Grupo Planeta*. Vi tu interés en *{program}* y quise enviarte un correo con los beneficios y descuentos que tenemos disponibles. ¡Que tengas un gran día!",
 
-    "Hola {name}, habla Andres Bustos, asesor de Grupo Planeta. Noté que consultaste el programa {program}, así que te envié un correo con detalles y oportunidades disponibles este mes.",
+    "Hola {name}, qué gusto saludarte 🌟 Soy *Andres Bustos*, asesor de *Grupo Planeta*. Te escribo porque mostraste interés en *{program}* y te hice llegar un correo con información y algunos descuentos especiales de este mes.",
 
-    "Hola {name}, soy Andres Bustos de Grupo Planeta. Gracias por tu interés en el programa {program}. Te dejé en tu correo información clave junto con algunos beneficios activos.",
+    "Buen día {name} ☀️ Te habla *Andres Bustos*, asesor comercial de *Grupo Planeta*. Me puse en contacto contigo porque registramos tu interés en *{program}* y quería que tuvieras a la mano el correo con los descuentos vigentes. ¡Que sea un día estupendo!",
 
-    "Hola {name}, te escribe Andres Bustos de Grupo Planeta. Vimos tu interés en el programa {program} y te envié un correo con información relevante y condiciones especiales.",
+    "Hola {name}, espero que tu día vaya muy bien 🎯 Soy *Andres Bustos* de *Grupo Planeta* y te escribo porque mostraste interés en *{program}*. Ya te envié un correo con los descuentos y beneficios disponibles este mes para que los puedas revisar con calma.",
 
-    "Hola {name}, soy Andres Bustos, asesor de Grupo Planeta. Me comunico contigo por el programa {program}. Te compartí un correo con detalles y beneficios que podrían interesarte.",
+    "Hola {name}, un gusto saludarte 👋 Te habla *Andres Bustos*, asesor comercial de *Grupo Planeta*. Me comunico contigo por tu interés en *{program}* y quería asegurarme de hacerte llegar el correo con los descuentos que manejamos este mes. ¡Que tengas un bonito día!",
 
-    "Hola {name}, ¿cómo estás? Soy Andres Bustos de Grupo Planeta. Te contacto por el programa {program}. Acabo de enviarte un correo con información y algunas ventajas disponibles actualmente.",
+    "Buen día {name}, espero que estés teniendo una excelente semana ✅ Soy *Andres Bustos* de *Grupo Planeta*. Te escribo porque mostraste interés en *{program}* y ya te envié un correo con la información y los descuentos disponibles. Quedo atento a cualquier consulta.",
 
-    "Hola {name}, soy Andres Bustos de Grupo Planeta. Te escribo para darte seguimiento a tu interés en el programa {program}. Te envié un correo con información y beneficios del mes.",
+    "Hola {name}, qué tal tu día 😊 Te habla *Andres Bustos*, asesor de *Grupo Planeta*. Vi que mostraste interés en *{program}* y me dio mucho gusto poder enviarte un correo con los descuentos y beneficios del mes. ¡Espero que sea justo lo que buscas!",
 
-    "Hola {name}, te habla Andres Bustos de Grupo Planeta. Vi tu interés en el programa {program} y te envié un correo con detalles y opciones disponibles.",
+    "Hola {name}, espero que estés muy bien 🌟 Soy *Andres Bustos*, asesor comercial de *Grupo Planeta*. Te contacto porque registramos tu interés en *{program}* y ya te hice llegar un correo con los descuentos disponibles este mes. ¡Que tengas un día maravilloso!",
 
-    "Hola {name}, soy Andres Bustos, asesor comercial de Grupo Planeta. Te contacto por el programa {program}. Hace poco te envié un correo con información y beneficios vigentes.",
+    "Buen día {name} 📚 Te escribe *Andres Bustos* de *Grupo Planeta*. Me comunico contigo porque mostraste interés en *{program}* y quería que pudieras revisar el correo que te envié con los beneficios y descuentos del mes. ¡Que sigas teniendo un excelente día!",
 
-    "Hola {name}, Andres Bustos de Grupo Planeta. Te escribo porque mostraste interés en el programa {program}. Te compartí un correo con información y algunas alternativas con descuento.",
+    "Hola {name}, un placer saludarte 👋 Soy *Andres Bustos*, asesor comercial de *Grupo Planeta*. Vi tu interés en *{program}* y con mucho gusto te hice llegar un correo con los descuentos y condiciones disponibles este mes. Quedo a tu disposición.",
 
-    "Hola {name}, soy Andres Bustos de Grupo Planeta. Recibimos tu interés en el programa {program} y por eso te envié un correo con detalles y beneficios actuales.",
+    "Hola {name}, espero que todo vaya de maravilla ✨ Te habla *Andres Bustos* de *Grupo Planeta*. Te escribo porque registramos tu interés en *{program}* y quise asegurarme de que recibieras el correo con los descuentos vigentes. ¡Que tengas un día increíble!",
 
-    "Hola {name}, te saluda Andres Bustos, asesor de Grupo Planeta. Te escribo por el programa {program}. Te envié un correo con información relevante y opciones disponibles este mes.",
+    "Buen día {name}, qué gusto poder saludarte 😊 Soy *Andres Bustos*, asesor de *Grupo Planeta*. Me pongo en contacto contigo por tu interés en *{program}* y ya te envié un correo con la información y los descuentos del mes. Espero que sea de gran ayuda.",
 
-    "Hola {name}, soy Andres Bustos de Grupo Planeta. Estoy dando seguimiento a tu interés en el programa {program}. Te dejé un correo con detalles y beneficios que pueden interesarte.",
+    "Hola {name}, espero que estés teniendo un día muy productivo 🎯 Te habla *Andres Bustos*, asesor comercial de *Grupo Planeta*. Vi tu interés en *{program}* y quise hacerte llegar un correo con los beneficios y descuentos disponibles. ¡Que el día te siga yendo bien!",
 
-    "Hola {name}, Andres Bustos por aquí, de Grupo Planeta. Te contacto por el programa {program}. Te envié un correo con información y condiciones especiales disponibles.",
+    "Hola {name}, un gusto escribirte 🌟 Soy *Andres Bustos* de *Grupo Planeta*. Me comunico contigo porque mostraste interés en *{program}* y ya te hice llegar un correo con los descuentos y oportunidades que tenemos disponibles este mes.",
 
-    "Hola {name}, soy Andres Bustos, asesor de Grupo Planeta. Te escribo en relación con el programa {program}. Hace un momento te compartí un correo con información y beneficios vigentes.",
+    "Buen día {name}, espero que estés muy bien ✅ Te escribe *Andres Bustos*, asesor de *Grupo Planeta*. Registramos tu interés en *{program}* y con gusto te envié un correo con los beneficios y descuentos vigentes. Quedo disponible para cualquier duda que tengas.",
 
-    "Hola {name}, te habla Andres Bustos de Grupo Planeta. Noté tu interés en el programa {program}. Te envié un correo con detalles y algunas oportunidades disponibles.",
+    "Hola {name}, qué alegría poder saludarte 😊 Soy *Andres Bustos*, asesor comercial de *Grupo Planeta*. Te escribo porque mostraste interés en *{program}* y ya te hice llegar un correo con los descuentos del mes. ¡Espero que tengas un día estupendo!",
 
-    "Hola {name}, soy Andres Bustos de Grupo Planeta. Te contacto para continuar con tu interés en el programa {program}. Te compartí un correo con información y beneficios del mes.",
+    "Hola {name}, espero que tu día esté yendo muy bien 👋 Te habla *Andres Bustos* de *Grupo Planeta*. Vi tu interés en *{program}* y quise asegurarme de enviarte el correo con los beneficios y descuentos disponibles este mes. ¡Que siga siendo un gran día!",
 
-    "Hola {name}, Andres Bustos de Grupo Planeta. Te escribo por el programa {program}. Revisa tu correo, ya que te envié información y beneficios que podrían interesarte."
+    "Buen día {name}, un gusto poder contactarte ✨ Soy *Andres Bustos*, asesor comercial de *Grupo Planeta*. Me comunico contigo por tu interés en *{program}* y ya te envié un correo con los descuentos y condiciones del mes. ¡Espero que tengas un día maravilloso!"
   ]
 }
