@@ -63,7 +63,7 @@ public class WhatsappChannel implements NotificationChannelStrategy {
 
             return DeliveryResult.success(ChannelType.WHATSAPP);
         } catch (Exception ex) {
-            log.error("WhatsApp failed for contact id={}: {}", contactEntity.getId(), ex.getMessage());
+            log.error("WhatsApp failed for contact masterProgramId={}: {}", contactEntity.getId(), ex.getMessage());
             return DeliveryResult.failure(ChannelType.WHATSAPP, ex);
         }
     }

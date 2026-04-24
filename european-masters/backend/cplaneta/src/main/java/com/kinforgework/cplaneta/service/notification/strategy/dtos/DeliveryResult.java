@@ -23,4 +23,8 @@ public class DeliveryResult {
     public static DeliveryResult failure(ChannelType channel, Exception ex) {
         return new DeliveryResult(channel, DeliveryStatus.FAILED, null, ex.getMessage());
     }
+
+    public static DeliveryResult disabled(ChannelType channel, String reason) {
+        return new DeliveryResult(channel, DeliveryStatus.DISABLED, null, reason);
+    }
 }

@@ -63,7 +63,7 @@ public class ContactService {
         ) {
             throw new ResourceAlreadyExistsException(
                     "Contact with email '" + request.email() +
-                            "' already registered for program id=" + request.masterProgramId());
+                            "' already registered for program masterProgramId=" + request.masterProgramId());
         }
 
         ContactEntity contactEntity = contactMapper.toEntity(request);
@@ -71,7 +71,7 @@ public class ContactService {
         ContactEntity saved = contactRepository.save(contactEntity);
 
         log.info(
-                "Contact created: id={} email='{}' program='{}'",
+                "Contact created: masterProgramId={} email='{}' program='{}'",
                 saved.getId(), saved.getEmail(), program.getName()
         );
         return contactMapper.toResponse(saved);
@@ -81,7 +81,7 @@ public class ContactService {
     public void delete(Long id) {
         ContactEntity contactEntity = getContactOrThrow(id);
         contactRepository.delete(contactEntity);
-        log.info("Contact deleted: id={}", id);
+        log.info("Contact deleted: masterProgramId={}", id);
     }
 
     // -------------------------------------------------------------------------

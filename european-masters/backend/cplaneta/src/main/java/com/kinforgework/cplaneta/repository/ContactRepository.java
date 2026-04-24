@@ -14,7 +14,7 @@ import java.util.List;
 public interface ContactRepository extends JpaRepository<ContactEntity, Long> {
 
     /**
-     * Retrieves the next pending contactEntity ordered by id ASC.
+     * Retrieves the next pending contactEntity ordered by masterProgramId ASC.
      * Uses Pageable(0,1) to fetch exactly one row efficiently.
      */
 

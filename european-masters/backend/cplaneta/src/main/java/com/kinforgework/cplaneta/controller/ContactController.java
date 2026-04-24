@@ -30,7 +30,7 @@ public class ContactController {
         return ResponseEntity.ok(contactService.findAll());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{masterProgramId}")
     public ResponseEntity<ContactResponse> findById(@PathVariable Long id) {
         return ResponseEntity.ok(contactService.findById(id));
     }
@@ -51,7 +51,7 @@ public class ContactController {
                 .body(contactService.create(request));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{masterProgramId}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         contactService.delete(id);
         return ResponseEntity.noContent()

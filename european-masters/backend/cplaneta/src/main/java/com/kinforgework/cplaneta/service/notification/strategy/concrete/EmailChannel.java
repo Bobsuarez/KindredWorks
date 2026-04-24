@@ -44,7 +44,7 @@ public class EmailChannel implements NotificationChannelStrategy {
             return DeliveryResult.success(ChannelType.EMAIL);
 
         } catch (Exception ex) {
-            log.error("Email failed for contact id={}: {}", contactEntity.getId(), ex.getMessage());
+            log.error("Email failed for contact masterProgramId={}: {}", contactEntity.getId(), ex.getMessage());
             return DeliveryResult.failure(ChannelType.EMAIL, ex);
         }
     }

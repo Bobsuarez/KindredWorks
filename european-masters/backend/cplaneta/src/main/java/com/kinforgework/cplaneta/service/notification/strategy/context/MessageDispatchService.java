@@ -10,6 +10,9 @@ import com.kinforgework.cplaneta.service.notification.ContactQueueService;
 import com.kinforgework.cplaneta.service.notification.MessageLogService;
 import com.kinforgework.cplaneta.service.notification.strategy.NotificationChannelStrategy;
 import com.kinforgework.cplaneta.service.notification.strategy.dtos.DeliveryResult;
+import com.kinforgework.cplaneta.service.notification.strategy.enums.ChannelType;
+import com.kinforgework.cplaneta.service.ProgramNotificationSettingService;
+import com.kinforgework.cplaneta.enums.NotificationChannel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -37,6 +40,7 @@ public class MessageDispatchService {
     private final ContactQueueService contactQueueService;
     private final MessageLogService logService;
     private final List<NotificationChannelStrategy> channels;
+    private final ProgramNotificationSettingService notificationSettingService;
 
     /**
      * Processes exactly one pending contact.
@@ -56,27 +60,40 @@ public class MessageDispatchService {
         MasterProgramEntity program = contactEntity.getMasterProgram();
 
         log.info(
-                "Dispatching contact id={} email='{}' program='{}'", contactEntity.getId(), contactEntity.getEmail(),
+                "Dispatching contact masterProgramId={} email='{}' program='{}'", contactEntity.getId(), contactEntity.getEmail(),
                 program.getName()
         );
 
         List<DeliveryResult> results = new ArrayList<>();
 
         for (NotificationChannelStrategy channel : channels) {
+            NotificationChannel notificationChannel = mapChannel(channel.getType());
+            boolean enabled = notificationSettingService.isChannelEnabled(program.getId(), notificationChannel);
+            if (!enabled) {
+                results.add(DeliveryResult.disabled(
+                        channel.getType(),
+                        "Channel disabled for program " + program.getId()
+                ));
+                continue;
+            }
             results.add(channel.send(contactEntity, program));
         }
 
         logService.record(contactEntity, program, results);
 
         boolean success = results.stream()
-                .allMatch(r -> r.getStatus() == DeliveryStatus.SUCCESS);
+                .allMatch(r -> r.getStatus() != DeliveryStatus.FAILED);
 
         contactEntity.setStatus(success ? ContactStatus.SENT : ContactStatus.ERROR);
 
-        log.info("Dispatch complete for contact id={}. status={}", contactEntity.getId(), success);
+        log.info("Dispatch complete for contact masterProgramId={}. status={}", contactEntity.getId(), success);
 
         contactRepository.save(contactEntity);
 
         return Boolean.TRUE;
+    }
+
+    private NotificationChannel mapChannel(ChannelType channelType) {
+        return NotificationChannel.valueOf(channelType.name());
     }
 }

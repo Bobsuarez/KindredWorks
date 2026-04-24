@@ -99,6 +99,44 @@ CREATE INDEX IF NOT EXISTS idx_message_logs_master_program  ON message_logs(mast
 CREATE INDEX IF NOT EXISTS idx_message_logs_created_at      ON message_logs(created_at);
 
 -- ------------------------------------------------------------
+-- Table: program_notification_settings
+-- ------------------------------------------------------------
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'notification_channel') THEN
+        CREATE TYPE notification_channel AS ENUM ('EMAIL', 'WHATSAPP');
+    END IF;
+END $$;
+
+CREATE TABLE IF NOT EXISTS program_notification_settings (
+    id                 BIGSERIAL            PRIMARY KEY,
+    master_program_id  BIGINT               NOT NULL,
+    channel            notification_channel NOT NULL,
+    is_enabled         BOOLEAN              NOT NULL DEFAULT TRUE,
+    effective_from     TIMESTAMPTZ          NOT NULL DEFAULT NOW(),
+    effective_to       TIMESTAMPTZ          NULL,
+    updated_by         VARCHAR(150)         NULL,
+    reason             VARCHAR(300)         NULL,
+    created_at         TIMESTAMPTZ          NOT NULL DEFAULT NOW(),
+    updated_at         TIMESTAMPTZ          NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT fk_pns_master_program
+        FOREIGN KEY (master_program_id) REFERENCES master_programs(id)
+        ON DELETE RESTRICT ON UPDATE CASCADE,
+
+    CONSTRAINT chk_pns_effective_range
+        CHECK (effective_to IS NULL OR effective_to > effective_from)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_pns_active_program_channel
+    ON program_notification_settings(master_program_id, channel)
+    WHERE effective_to IS NULL;
+
+CREATE INDEX IF NOT EXISTS idx_pns_enabled_lookup
+    ON program_notification_settings(master_program_id, channel, is_enabled)
+    WHERE effective_to IS NULL;
+
+-- ------------------------------------------------------------
 -- Trigger: auto-update updated_at columns
 -- ------------------------------------------------------------
 CREATE OR REPLACE FUNCTION set_updated_at()
@@ -115,6 +153,11 @@ CREATE TRIGGER trg_master_programs_updated_at
 
 CREATE TRIGGER trg_contacts_updated_at
     BEFORE UPDATE ON contacts
+    FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+DROP TRIGGER IF EXISTS trg_pns_updated_at ON program_notification_settings;
+CREATE TRIGGER trg_pns_updated_at
+    BEFORE UPDATE ON program_notification_settings
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- ------------------------------------------------------------
@@ -164,4 +207,9 @@ CREATE TRIGGER trg_contacts_audit_delete
 DROP TRIGGER IF EXISTS trg_message_logs_audit_delete ON message_logs;
 CREATE TRIGGER trg_message_logs_audit_delete
     BEFORE DELETE ON message_logs
+    FOR EACH ROW EXECUTE FUNCTION audit_delete();
+
+DROP TRIGGER IF EXISTS trg_pns_audit_delete ON program_notification_settings;
+CREATE TRIGGER trg_pns_audit_delete
+    BEFORE DELETE ON program_notification_settings
     FOR EACH ROW EXECUTE FUNCTION audit_delete();

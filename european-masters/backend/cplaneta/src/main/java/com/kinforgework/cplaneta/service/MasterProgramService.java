@@ -93,7 +93,7 @@ public class MasterProgramService {
         saved.setSubjectImagePath(imagePath);
         masterProgramRepository.save(saved);
 
-        log.info("MasterProgram created: id={} name='{}'", saved.getId(), saved.getName());
+        log.info("MasterProgram created: masterProgramId={} name='{}'", saved.getId(), saved.getName());
         return masterProgramMapper.toResponse(saved);
     }
 
@@ -131,7 +131,7 @@ public class MasterProgramService {
         }
 
         MasterProgramEntity updated = masterProgramRepository.save(program);
-        log.info("MasterProgram updated: id={} name='{}'", updated.getId(), updated.getName());
+        log.info("MasterProgram updated: masterProgramId={} name='{}'", updated.getId(), updated.getName());
         return masterProgramMapper.toResponse(updated);
     }
 
@@ -139,7 +139,7 @@ public class MasterProgramService {
     public void delete(Long id) {
         MasterProgramEntity program = getProgramOrThrow(id);
         masterProgramRepository.delete(program);
-        log.info("MasterProgram deleted: id={}", id);
+        log.info("MasterProgram deleted: masterProgramId={}", id);
     }
 
     private String isValidMultipartSubject(MultipartFile subjectImage, MasterProgramEntity saved) {

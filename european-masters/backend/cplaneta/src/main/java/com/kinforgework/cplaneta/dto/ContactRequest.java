@@ -19,7 +19,7 @@ public record ContactRequest(
         @Size(max = 30)
         String phoneNumber,
 
-        @NotNull(message = "Master program id is required")
+        @NotNull(message = "Master program masterProgramId is required")
         Long masterProgramId
 ) {
 }

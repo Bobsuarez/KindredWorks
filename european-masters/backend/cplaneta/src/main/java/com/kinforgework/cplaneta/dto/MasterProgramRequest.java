@@ -10,7 +10,7 @@ public record MasterProgramRequest(
         @Size(max = 300)
         String name,
 
-        @NotNull(message = "Area id is required")
+        @NotNull(message = "Area masterProgramId is required")
         Long areaId
 ) {
 }
